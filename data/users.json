@@ -1,0 +1,43 @@
+[
+  {
+    "name": "mostafa",
+    "email": "mostafa@ss.com",
+    "password": "$2b$10$sT2DVduI4W.78l626CN9I.men/eHZRz4D9yQ5gJcSKpuKmqZfs86G"
+  },
+  {
+    "name": "sasa nezar",
+    "email": "sasanezar@gmail.com",
+    "password": "$2b$10$AHz675aBWvNOq8vHrSLaR.EAMnMhpmXIXKnEaK3NlomHeKBlmj.oW"
+  },
+  {
+    "name": "Mostafa Nezar",
+    "email": "mostafanezar19@gmail.com",
+    "password": "",
+    "isGoogleUser": true
+  },
+  {
+    "name": "sasa",
+    "email": "mostafanezar192@gmail.com",
+    "password": "$2b$10$m4SuKrYRL7n5XnC8.CLryeLcmT.esH4avzh/LXQ0bdB6oFLKoXNhi"
+  },
+  {
+    "name": "sasa 2",
+    "email": "sasa22@df.com",
+    "password": "$2b$10$4SbYdek3gIHpWWFZUPydJ.UB23pCxkQQv/BuBWfb3T210xZhMVUoK"
+  },
+  {
+    "name": "sasa",
+    "email": "mostafanezar22@gmail.com",
+    "password": "$2b$10$n/VMkFNjMCmzY.CgwfKsdOgttBxmAZHskkd7Pj4VVM3ly399ZtuRu"
+  },
+  {
+    "name": "sasa23",
+    "email": "mostafanezar23@gmail.com",
+    "password": "$2b$10$uJo12gDeyuIDPOtd.ju4auzPTtpHqBCLo0oOIdaWVTRtOl5Eae.DO"
+  },
+  {
+    "name": "sasa 123",
+    "email": "sasa123@sasa.sasa",
+    "password": "$2b$10$SCuRMLfvNTvMS80/H5Lwq.UnEks0uG2PRHbcTMfqRcMtPf9uV9IfG"
+  }
+]
