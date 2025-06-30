@@ -14,17 +14,17 @@ router.get("/", (req, res) => {
 
 // ✅ Add new rating
 router.post("/", (req, res) => {
-  const { userId, productId, rating } = req.body;
+  const { userid, productid, rate } = req.body;
 
-  if (!userId || !productId || typeof rating !== "number") {
+  if (!userid || !productid || typeof rate !== "number") {
     return res.status(400).json({ msg: "Invalid data sent" });
   }
 
   const newRating = {
     _id: `r${Date.now()}`,
-    userId,
-    productId,
-    rating,
+    userid,
+    productid,
+    rate,
     createdAt: new Date().toISOString()
   };
 

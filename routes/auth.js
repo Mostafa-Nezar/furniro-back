@@ -1,44 +1,3 @@
-// const express = require("express");
-// const bcrypt = require("bcryptjs");
-// const router = express.Router();
-// const User = require("../models/user");
-
-// // ✅ Sign Up
-// router.post("/signup", async (req, res) => {
-//   console.log("📥 Signup request:", req.body);
-//   const { name, email, password } = req.body;
-
-//   try {
-//     const exists = await User.findOne({ email });
-//     if (exists) return res.status(400).json({ msg: "Email already exists" });
-
-//     const hashedPass = await bcrypt.hash(password, 10);
-//     const newUser = await User.create({ name, email, password: hashedPass });
-
-//     res.status(201).json({ msg: "User registered successfully", user: { name: newUser.name, email: newUser.email } });
-//   } catch (err) {
-//     res.status(500).json({ msg: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Sign In
-// router.post("/signin", async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user) return res.status(404).json({ msg: "User not found" });
-
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) return res.status(400).json({ msg: "Invalid password" });
-
-//     res.json({ msg: "Login successful", user: { name: user.name, email: user.email } });
-//   } catch (err) {
-//     res.status(500).json({ msg: "Server error", error: err.message });
-//   }
-// });
-
-// module.exports = router;
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -64,7 +23,6 @@ function writeUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
-// ✅ Manual Sign Up
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password)
@@ -75,18 +33,32 @@ router.post("/signup", async (req, res) => {
   if (exists) return res.status(400).json({ msg: "Email already exists" });
 
   const hashedPass = await bcrypt.hash(password, 10);
-  const newUser = { name, email, password: hashedPass };
+
+  // ======== ✅ إضافة ID تلقائي ==========
+  let newId = 1;
+  if (users.length > 0) {
+    const maxId = Math.max(...users.map(u => u.id || 0));
+    newId = maxId + 1;
+  }
+  // ======================================
+
+  const newUser = {
+    id: newId, // ✅ إضافة الـ id هنا
+    name,
+    email,
+    password: hashedPass,
+  };
 
   users.push(newUser);
   writeUsers(users);
 
   res.status(201).json({
     msg: "User registered successfully",
-    user: { name: newUser.name, email: newUser.email },
+    user: { id: newUser.id, name: newUser.name, email: newUser.email },
   });
 });
 
-// ✅ Manual Sign In
+
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -102,7 +74,6 @@ router.post("/signin", async (req, res) => {
   res.json({ msg: "Login successful", user: { name: user.name, email: user.email } });
 });
 
-// ✅ Google Sign-In
 router.post("/google", async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(400).json({ msg: "Missing Google token" });
@@ -132,5 +103,4 @@ router.post("/google", async (req, res) => {
   }
 });
 
-// ✅ Export Router at the END
 module.exports = router;

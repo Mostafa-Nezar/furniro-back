@@ -40,7 +40,9 @@
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
-    "sale": 30
+    "sale": 30,
+    "averagerate": 4.3,
+    "ratecount": 3
   },
   {
     "id": 2,
@@ -83,7 +85,9 @@
     "image1": "http://localhost:3001/uploads/Images.png",
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
-    "image4": "http://localhost:3001/uploads/lamp.png"
+    "image4": "http://localhost:3001/uploads/lamp.png",
+    "averagerate": 4.5,
+    "ratecount": 2
   },
   {
     "id": 3,
@@ -170,7 +174,9 @@
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
     "sale": 50,
-    "new": "New"
+    "new": "New",
+    "averagerate": 4.3,
+    "ratecount": 4
   },
   {
     "id": 5,
@@ -212,7 +218,9 @@
     "image1": "http://localhost:3001/uploads/Images.png",
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
-    "image4": "http://localhost:3001/uploads/lamp.png"
+    "image4": "http://localhost:3001/uploads/lamp.png",
+    "averagerate": 3.6,
+    "ratecount": 7
   },
   {
     "id": 6,
@@ -255,7 +263,9 @@
     "image2": "http://localhost:3001/uploads/image7.png",
     "image3": "http://localhost:3001/uploads/image8.png",
     "image4": "http://localhost:3001/uploads/image6.png",
-    "new": "New"
+    "new": "New",
+    "averagerate": 5,
+    "ratecount": 1
   },
   {
     "id": 7,
@@ -298,7 +308,9 @@
     "image2": "http://localhost:3001/uploads/image7.png",
     "image3": "http://localhost:3001/uploads/image8.png",
     "image4": "http://localhost:3001/uploads/image6.png",
-    "sale": 50
+    "sale": 50,
+    "averagerate": 4.5,
+    "ratecount": 2
   },
   {
     "id": 8,
@@ -341,7 +353,9 @@
     "image2": "http://localhost:3001/uploads/image7.png",
     "image3": "http://localhost:3001/uploads/image8.png",
     "image4": "http://localhost:3001/uploads/image6.png",
-    "new": "New"
+    "new": "New",
+    "averagerate": 3.5,
+    "ratecount": 2
   },
   {
     "id": 9,

@@ -4,9 +4,10 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
-// const productsMongoRoutes = require("./routes/productsmongo");
 const productsDbRoutes = require("./routes/productsdb");
 const ratingsRoutes = require("./routes/ratings"); // ✅
+const uploadRoutes = require('./routes/uploadRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config();
 const app = express();
@@ -17,7 +18,8 @@ app.use("/uploads", express.static("uploads"));
 
 // ✅ Routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/products/mongo", productsMongoRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/products/db", productsDbRoutes);
 app.use("/api/ratings", ratingsRoutes); // ✅
 
