@@ -36,17 +36,21 @@ router.patch('/:id/add-to-cart', (req, res) => {
   res.json({ message: 'Product added/updated in cart', cart: user.cart });
 });
 
-router.patch('/users/:id/remove-from-cart', async (req, res) => {
-  const userId = req.params.id;
+router.patch("/:id/remove-from-cart", (req, res) => {
+  const userId = parseInt(req.params.id);
   const { productId } = req.body;
 
-  const user = await User.findById(userId);
-  if (!user) return res.status(404).json({ error: 'User not found' });
+  const users = loadUsers();
+  const userIndex = users.findIndex((u) => u.id === userId);
+  if (userIndex === -1) return res.status(404).json({ message: "User not found" });
 
-  user.cart = user.cart.filter(item => item.id !== productId);
-  await user.save();
+  const user = users[userIndex];
+  if (!user.cart) user.cart = [];
 
-  res.json({ cart: user.cart });
+  user.cart = user.cart.filter((item) => item.id !== productId);
+  saveUsers(users);
+
+  res.json({ message: "Product removed from cart", cart: user.cart });
 });
 
 // ✅ JSON File - Update Favorites

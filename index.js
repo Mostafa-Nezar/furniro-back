@@ -8,7 +8,7 @@ const productsDbRoutes = require("./routes/productsdb");
 const ratingsRoutes = require("./routes/ratings"); // ✅
 const uploadRoutes = require('./routes/uploadRoutes');
 const userRoutes = require('./routes/userRoutes');
-
+const paymentRoute = require("./routes/payment");
 dotenv.config();
 const app = express();
 
@@ -22,6 +22,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products/db", productsDbRoutes);
 app.use("/api/ratings", ratingsRoutes); // ✅
+app.use("/api/payment", paymentRoute);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))

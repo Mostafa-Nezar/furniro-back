@@ -47,6 +47,7 @@ router.post("/signup", async (req, res) => {
     name,
     email,
     password: hashedPass,
+    cart: [], // ✅ تهيئة سلة تسوق فارغة
   };
 
   users.push(newUser);
@@ -71,7 +72,7 @@ router.post("/signin", async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ msg: "Invalid password" });
 
-  res.json({ msg: "Login successful", user: { name: user.name, email: user.email } });
+  res.json({ msg: "Login successful", user: { id: user.id, name: user.name, email: user.email, cart: user.cart || [] } });
 });
 
 router.post("/google", async (req, res) => {
@@ -96,7 +97,7 @@ router.post("/google", async (req, res) => {
       writeUsers(users);
     }
 
-    res.json({ msg: "Google login successful", user: { name: user.name, email: user.email } });
+    res.json({ msg: "Google login successful", user: { name: user.name, email: user.email, cart: user.cart || [] } });
   } catch (err) {
     console.error("❌ Google Sign-In Error:", err);
     res.status(401).json({ msg: "Google authentication failed" });

@@ -40,9 +40,7 @@
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
-    "sale": 30,
-    "averagerate": 4.3,
-    "ratecount": 3
+    "sale": 30
   },
   {
     "id": 2,
@@ -87,7 +85,7 @@
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
     "averagerate": 4.5,
-    "ratecount": 2
+    "ratecount": 16
   },
   {
     "id": 3,
@@ -130,7 +128,9 @@
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
-    "sale": 50
+    "sale": 50,
+    "averagerate": 4.8,
+    "ratecount": 9
   },
   {
     "id": 4,
@@ -174,9 +174,7 @@
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
     "sale": 50,
-    "new": "New",
-    "averagerate": 4.3,
-    "ratecount": 4
+    "new": "New"
   },
   {
     "id": 5,
@@ -219,8 +217,8 @@
     "image2": "http://localhost:3001/uploads/Images2.png",
     "image3": "http://localhost:3001/uploads/Images3.png",
     "image4": "http://localhost:3001/uploads/lamp.png",
-    "averagerate": 3.6,
-    "ratecount": 7
+    "averagerate": 5,
+    "ratecount": 3
   },
   {
     "id": 6,
@@ -265,7 +263,7 @@
     "image4": "http://localhost:3001/uploads/image6.png",
     "new": "New",
     "averagerate": 5,
-    "ratecount": 1
+    "ratecount": 35
   },
   {
     "id": 7,
@@ -309,8 +307,8 @@
     "image3": "http://localhost:3001/uploads/image8.png",
     "image4": "http://localhost:3001/uploads/image6.png",
     "sale": 50,
-    "averagerate": 4.5,
-    "ratecount": 2
+    "averagerate": 4.8,
+    "ratecount": 9
   },
   {
     "id": 8,
@@ -353,9 +351,7 @@
     "image2": "http://localhost:3001/uploads/image7.png",
     "image3": "http://localhost:3001/uploads/image8.png",
     "image4": "http://localhost:3001/uploads/image6.png",
-    "new": "New",
-    "averagerate": 3.5,
-    "ratecount": 2
+    "new": "New"
   },
   {
     "id": 9,
@@ -1938,7 +1934,9 @@
     "image1": "http://localhost:3001/uploads/sm1.png",
     "image2": "http://localhost:3001/uploads/sm2.png",
     "image3": "http://localhost:3001/uploads/sm3.png",
-    "image4": "http://localhost:3001/uploads/sm4.png"
+    "image4": "http://localhost:3001/uploads/sm4.png",
+    "averagerate": 4.8,
+    "ratecount": 13
   },
   {
     "id": 46,

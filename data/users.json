@@ -1,277 +1,22 @@
 [
   {
     "id": 1,
-    "name": "sasa nezar",
-    "email": "sasanezar88@gmail.com",
-    "password": "$2b$10$Tz8L3qWYO9x3PGUTx9xRWOm.SN8bpclgPCAt1AS/ayN9JyronXsfu"
-  },
-  {
-    "id": 2,
-    "name": "soso nezar",
-    "email": "sosonezar@gmail.com",
-    "password": "$2b$10$7.7seKdL97XZ4cqjkx1zm.l/4mhQJ1wbxWcx/kNc/PdqyLALVT5ti"
-  },
-  {
-    "id": 3,
-    "name": "ahmed",
-    "email": "mahmoud@r.com",
-    "password": "$2b$10$QPv4QNzxIZERZfiN3CL2MOEba6wORKKyvLzM.A0pHJw/ecI2TUcp6"
-  },
-  {
-    "id": 4,
-    "name": "adel",
-    "email": "adel@jd.com",
-    "password": "$2b$10$p.WcSmi/58VdUGYRhrdfl.u/VJ13XuH39u8egHEysrWK2AfM65VH."
-  },
-  {
-    "id": 7,
-    "name": "soso nezar",
-    "email": "soso@mail.com",
-    "password": "$2b$10$ooSYFMMrXERsmoxYCnUUQexrhC5aEjHPtiO8ayDp5fl6dGhicadJy"
-  },
-  {
-    "id": 8,
-    "name": "noutha",
-    "email": "mamawnouthawnoreen@mial.com",
-    "password": "$2b$10$9jbx7iBLIPjB/48tLZwDreqS0.kSgRzY7T35KX9zsDu25gzKaPTm."
-  },
-  {
-    "id": 9,
-    "name": "sa@m.com",
-    "email": "sa@m.com",
-    "password": "$2b$10$MXKFQAcgvfdim2WgFk5ktOF2atwTUN0pPmtukHVyH6GkrScrx9Y/6"
-  },
-  {
-    "id": 10,
-    "name": "a@a.a",
-    "email": "a@a.a",
-    "password": "$2b$10$UgA7OCV8/b1DpZRSDkH20Oyzu6gMurmWwGKYTLGW7Wzp9XbgRpKQ2"
-  },
-  {
-    "id": 11,
-    "name": "sara",
-    "email": "sarahnezar@mail.com",
-    "password": "$2b$10$sdaX59TcwhywWbMdq02iLu1mIo4HjKwQX/E5IS9TTcln7n.xlVk2O"
-  },
-  {
-    "id": 12,
-    "name": "a@a.a2",
-    "email": "a@a.a2",
-    "password": "$2b$10$dxayFkTmy.p9ugtks0OM6.ZYLZYGTjY2vyosYv7nIUMFV5daYjRH6"
-  },
-  {
-    "id": 13,
-    "name": "b@b.b",
-    "email": "b@b.b",
-    "password": "$2b$10$.lF9Mx4hiB5ifx4jdskTMOnpvpXWVu2pwms6/w8yn7jLXbStvLBUi"
-  },
-  {
-    "id": 14,
-    "name": "x@x.x",
-    "email": "x@x.x",
-    "password": "$2b$10$AaL2E4EozVt7sgMmzk3vP.9DU4cvcCPASn7pedFNSV2wo6HWqvIxe",
-    "cart": []
-  },
-  {
-    "id": 15,
-    "name": "ahmed mostafa",
-    "email": "mostafaahmed@mail.com",
-    "password": "$2b$10$Yfc3z3RIfTn8NI.1V9pryedDDEyIE0JsSVnb89J5/3NObxhbxqUn2",
-    "cart": [
-      {
-        "id": 2,
-        "name": "Leviosa",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/image2.png"
-      },
-      {
-        "id": 1,
-        "name": "Syltherine",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/Images.png"
-      },
-      {
-        "id": 4,
-        "name": "Respira",
-        "price": 500,
-        "image": "http://localhost:3001/uploads/Images3.png"
-      },
-      {
-        "id": 3,
-        "name": "Lolito",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/Images2.png"
-      },
-      {
-        "id": 6,
-        "name": "Muggo",
-        "price": 200,
-        "image": "http://localhost:3001/uploads/image6.png"
-      },
-      {
-        "id": 5,
-        "name": "Grifo",
-        "price": 150,
-        "image": "http://localhost:3001/uploads/lamp.png"
-      }
-    ]
-  },
-  {
-    "id": 16,
-    "name": "aa",
-    "email": "aa@aa.aa",
-    "password": "$2b$10$4M.1dci.QA0hHIxL9GFF3.rlQg8Yv1Ma4VeOgl89YkxkOfG5ederK",
-    "cart": [
-      {
-        "id": 4,
-        "name": "Respira",
-        "price": 500,
-        "image": "http://localhost:3001/uploads/Images3.png"
-      },
-      {
-        "id": 5,
-        "name": "Grifo",
-        "price": 150,
-        "image": "http://localhost:3001/uploads/lamp.png"
-      },
-      {
-        "id": 1,
-        "name": "Syltherine",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/Images.png"
-      },
-      {
-        "id": 3,
-        "name": "Lolito",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/Images2.png"
-      }
-    ]
-  },
-  {
-    "id": 17,
-    "name": "soso sasa",
-    "email": "sososas@mail.com",
-    "password": "$2b$10$5KWb2hIb6FQcyjqFM./3IejjhM4iIFbcn1vxQ6/anvS/Kf2HJC4qy",
-    "cart": [
-      {
-        "id": 3,
-        "name": "Lolito",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/Images2.png",
-        "quantity": 1
-      },
-      {
-        "id": 4,
-        "name": "Respira",
-        "price": 500,
-        "image": "http://localhost:3001/uploads/Images3.png",
-        "quantity": 1
-      },
-      {
-        "id": 6,
-        "name": "Muggo",
-        "price": 200,
-        "image": "http://localhost:3001/uploads/image6.png",
-        "quantity": 4
-      },
-      {
-        "id": 7,
-        "name": "Pingky",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/image7.png",
-        "quantity": 1
-      },
-      {
-        "id": 8,
-        "name": "Potty",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/image8.png",
-        "quantity": 7
-      },
-      {
-        "id": 1,
-        "name": "Syltherine",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/Images.png",
-        "quantity": 3
-      },
-      {
-        "id": 2,
-        "name": "Leviosa",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/image2.png",
-        "quantity": 3
-      }
-    ]
-  },
-  {
-    "id": 18,
-    "name": "sasa nezar",
-    "email": "mostafanezar19@gmail.com",
-    "password": "$2b$10$B/YfQ54bNYtjPKx4wTiguufeXWSbJ7HjISXjSO0AcTFmg4QWc5Vr."
-  },
-  {
-    "id": 19,
-    "name": "ak@ks",
-    "email": "ak@ks",
-    "password": "$2b$10$Uwk9qqPgpeepnYqE14iAW.O.CU5J8d4lW.PCOrC2803kPGbf6JKLa",
+    "name": "n@n",
+    "email": "n@n",
+    "password": "$2b$10$6keLr5c.c8VUJRj8YWfwyOoEljfafQz93Puf3MJXrLDajmzjN0Cgq",
     "cart": [
       {
         "id": 1,
         "name": "Syltherine",
         "price": 250,
         "image": "http://localhost:3001/uploads/Images.png",
-        "quantity": 1
-      }
-    ]
-  },
-  {
-    "id": 20,
-    "name": "q@qq",
-    "email": "q@qq",
-    "password": "$2b$10$nCUf7d3y84BNILioVgeKEui3aXYgGPaDJZg91WGUaFCLU2.TguZ42"
-  },
-  {
-    "id": 21,
-    "name": "qq@qq",
-    "email": "qq@qq",
-    "password": "$2b$10$cBlu5ZtXoZmISxk3FHfUGOpICvYldYgjtQJj4AOk6Bv4qbiQt0QhG",
-    "cart": [
-      {
-        "id": 1,
-        "name": "Syltherine",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/Images.png",
-        "quantity": 4
-      },
-      {
-        "id": 2,
-        "name": "Leviosa",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/image2.png",
-        "quantity": 1
-      }
-    ]
-  },
-  {
-    "id": 22,
-    "name": "sasa",
-    "email": "sasa123@mail.com",
-    "password": "$2b$10$Hxs7L/rD.8nUQSV/Slw01elDYWHCrIqd7WnaI9KNUmN98muWgxA86",
-    "cart": [
-      {
-        "id": 2,
-        "name": "Leviosa",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/image2.png",
         "quantity": 2
       },
       {
-        "id": 3,
-        "name": "Lolito",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/Images2.png",
+        "id": 2,
+        "name": "Leviosa",
+        "price": 250,
+        "image": "http://localhost:3001/uploads/image2.png",
         "quantity": 2
       },
       {
@@ -279,106 +24,77 @@
         "name": "Respira",
         "price": 500,
         "image": "http://localhost:3001/uploads/Images3.png",
-        "quantity": 3
+        "quantity": 4
+      },
+      {
+        "id": 3,
+        "name": "Lolito",
+        "price": 700,
+        "image": "http://localhost:3001/uploads/Images2.png",
+        "quantity": 4
       },
       {
         "id": 6,
         "name": "Muggo",
         "price": 200,
         "image": "http://localhost:3001/uploads/image6.png",
-        "quantity": 2
+        "quantity": 18
       },
       {
         "id": 5,
         "name": "Grifo",
         "price": 150,
         "image": "http://localhost:3001/uploads/lamp.png",
-        "quantity": 3
-      },
-      {
-        "id": 10,
-        "name": "Bedroom",
-        "price": 300,
-        "image": "http://localhost:3001/uploads/bedroom.png",
-        "quantity": 3
+        "quantity": 10
       }
     ]
   },
   {
-    "id": 23,
-    "name": "soso nezar",
-    "email": "soso123@gmail.com",
-    "password": "$2b$10$8N3BHN6dzX/rDH7jjALTo.q5ss2ym47y2l2csywhnjAuuxi0nddG6",
+    "id": 2,
+    "name": "o@o",
+    "email": "o@o",
+    "password": "$2b$10$OzzoFVZaDQspHE81/PoqVu5Gybj6whRUYK8JkxrRbZsw69ORNEDOS",
     "cart": [
       {
         "id": 1,
         "name": "Syltherine",
         "price": 250,
         "image": "http://localhost:3001/uploads/Images.png",
-        "quantity": 1
+        "quantity": 5
       },
       {
         "id": 2,
         "name": "Leviosa",
         "price": 250,
         "image": "http://localhost:3001/uploads/image2.png",
-        "quantity": 8
+        "quantity": 5
       },
       {
         "id": 4,
         "name": "Respira",
         "price": 500,
         "image": "http://localhost:3001/uploads/Images3.png",
-        "quantity": 4
-      },
-      {
-        "id": 8,
-        "name": "Potty",
-        "price": 700,
-        "image": "http://localhost:3001/uploads/image8.png",
-        "quantity": 11
-      },
-      {
-        "id": 10,
-        "name": "Bedroom",
-        "price": 300,
-        "image": "http://localhost:3001/uploads/bedroom.png",
-        "quantity": 13
-      }
-    ]
-  },
-  {
-    "id": 24,
-    "name": "sasa w noutha w nora w mama",
-    "email": "mamanora@mail.com",
-    "password": "$2b$10$kPXXmc8DU2T4/dzc7oOQV.4N8IRucE9rSPaJIMBhwb7Kat9wp/8Qm",
-    "cart": [
-      {
-        "id": 1,
-        "name": "Syltherine",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/Images.png",
-        "quantity": 1
-      },
-      {
-        "id": 2,
-        "name": "Leviosa",
-        "price": 250,
-        "image": "http://localhost:3001/uploads/image2.png",
-        "quantity": 1
-      },
-      {
-        "id": 4,
-        "name": "Respira",
-        "price": 500,
-        "image": "http://localhost:3001/uploads/Images3.png",
-        "quantity": 1
+        "quantity": 5
       },
       {
         "id": 3,
         "name": "Lolito",
         "price": 700,
         "image": "http://localhost:3001/uploads/Images2.png",
+        "quantity": 1
+      },
+      {
+        "id": 6,
+        "name": "Muggo",
+        "price": 200,
+        "image": "http://localhost:3001/uploads/image6.png",
+        "quantity": 3
+      },
+      {
+        "id": 5,
+        "name": "Grifo",
+        "price": 150,
+        "image": "http://localhost:3001/uploads/lamp.png",
         "quantity": 3
       }
     ]
