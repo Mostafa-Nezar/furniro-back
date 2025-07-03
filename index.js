@@ -3,31 +3,35 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
-const authRoutes = require("./routes/auth");
-const productsDbRoutes = require("./routes/productsdb");
-const ratingsRoutes = require("./routes/ratings"); // ✅
-const uploadRoutes = require('./routes/uploadRoutes');
-const userRoutes = require('./routes/userRoutes');
-const paymentRoute = require("./routes/payment");
 dotenv.config();
+
 const app = express();
+const webhookRoute = require('./routes/webhook');
+app.use("/api/payment/webhook", webhookRoute);
 
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-// ✅ Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/products/db", productsDbRoutes);
-app.use("/api/ratings", ratingsRoutes); // ✅
-app.use("/api/payment", paymentRoute);
+const auth = require("./routes/auth");
+const products = require("./routes/products");
+const ratingsRoutes = require("./routes/ratings");
+const uploaduserimage = require('./routes/uploaduserimage');
+const cart = require('./routes/cart');
+const paymentRoute = require("./routes/payment");
+
+app.use("/api/auth", auth);
+app.use("/api/upload", uploaduserimage);
+app.use("/api/cart", cart);
+app.use("/api/products/db", products);
+app.use("/api/ratings", ratingsRoutes);
+app.use("/api/payment", paymentRoute); 
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-app.listen(process.env.PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${process.env.PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

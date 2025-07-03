@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const dotenv = require("dotenv");
-dotenv.config(); // ← مهم جدًا هنا قبل استدعاء stripe
+dotenv.config(); 
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// إنشاء رابط دفع (Checkout Session)
 router.post("/create-checkout-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
@@ -18,7 +17,7 @@ router.post("/create-checkout-session", async (req, res) => {
             product_data: {
               name: "منتج تجريبي",
             },
-            unit_amount: 2000, // 20 دولار × 100 = 2000 سنت
+            unit_amount: 2000,
           },
           quantity: 1,
         },
