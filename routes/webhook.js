@@ -1,10 +1,9 @@
+// routes/webhook.js
 const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const fs = require('fs');
-const path = require('path');
+const Order = require('../models/Order'); // موديل الطلبات
 
-const ordersFilePath = path.join(__dirname, '../data/orders.json');
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post(
@@ -34,26 +33,16 @@ router.post(
       };
 
       try {
-        let orders = [];
+        const existingOrder = await Order.findOne({ stripeSessionId: newOrder.stripeSessionId });
 
-        if (fs.existsSync(ordersFilePath)) {
-          const existingData = fs.readFileSync(ordersFilePath);
-          orders = JSON.parse(existingData);
-        }
-
-        const isDuplicate = orders.some(
-          (order) => order.stripeSessionId === newOrder.stripeSessionId
-        );
-
-        if (!isDuplicate) {
-          orders.push(newOrder);
-          fs.writeFileSync(ordersFilePath, JSON.stringify(orders, null, 2));
-          console.log('✅ Order saved locally');
+        if (!existingOrder) {
+          await Order.create(newOrder);
+          console.log('✅ Order saved to MongoDB');
         } else {
           console.log('⚠️ Duplicate order, not saved again.');
         }
       } catch (error) {
-        console.error('❌ Error saving order:', error);
+        console.error('❌ Error saving order to MongoDB:', error);
       }
     }
 
