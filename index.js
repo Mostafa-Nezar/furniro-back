@@ -41,3 +41,7 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
+app.use("/api/admin", require("./routes/admin"));
+app.use("/api/notifications", require("./routes/notifications"));
+
