@@ -1,6 +1,13 @@
 const Notification = require('../models/notification');
 
 class NotificationService {
+    static io = null;
+    
+    // Set Socket.IO instance
+    static setSocketIO(socketIO) {
+        this.io = socketIO;
+    }
+
     // Create a notification for a specific user
     static async createNotification(userId, message) {
         try {
@@ -9,6 +16,17 @@ class NotificationService {
                 message
             });
             await notification.save();
+            
+            // Send real-time notification via Socket.IO
+            if (this.io) {
+                this.io.to(`user_${userId}`).emit('newNotification', {
+                    id: notification._id,
+                    message: notification.message,
+                    read: notification.read,
+                    createdAt: notification.createdAt
+                });
+            }
+            
             return notification;
         } catch (error) {
             console.error('Error creating notification:', error);
@@ -23,8 +41,21 @@ class NotificationService {
                 userId,
                 message
             }));
-            await Notification.insertMany(notifications);
-            return notifications;
+            const savedNotifications = await Notification.insertMany(notifications);
+            
+            // Send real-time notifications via Socket.IO
+            if (this.io) {
+                savedNotifications.forEach(notification => {
+                    this.io.to(`user_${notification.userId}`).emit('newNotification', {
+                        id: notification._id,
+                        message: notification.message,
+                        read: notification.read,
+                        createdAt: notification.createdAt
+                    });
+                });
+            }
+            
+            return savedNotifications;
         } catch (error) {
             console.error('Error creating bulk notifications:', error);
             throw error;

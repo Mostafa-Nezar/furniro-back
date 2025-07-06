@@ -1,5 +1,3 @@
-// models/Product.js
-
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
@@ -53,6 +51,9 @@ const productSchema = new mongoose.Schema({
   sale: Number,
   averagerate: Number,
   ratecount: Number,
+  quantity: { type: Number, default: 0 }, // Added quantity field
 }, { collection: "productslists" });
 
 module.exports = mongoose.model("Product", productSchema);
+
+

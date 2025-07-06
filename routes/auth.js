@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
+const { sendWelcomeEmail } = require("../utils/emailService");
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -28,9 +29,13 @@ router.post("/signup", async (req, res) => {
       name,
       email,
       password: hashedPass,
+      isSubscribed:false
     });
 
     await newUser.save();
+
+    // Send welcome email
+    await sendWelcomeEmail(newUser.email, newUser.name);
 
     const token = jwt.sign({ id: newUser.id }, JWT_SECRET, { expiresIn: "7d" });
 
@@ -42,6 +47,7 @@ router.post("/signup", async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         cart: newUser.cart || [],
+        isSubscribed:newUser.isSubscribed || false
       },
     });
   } catch (err) {
@@ -72,7 +78,9 @@ router.post("/signin", async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        image:user.image,
         cart: user.cart || [],
+        isSubscribed: user.isSubscribed || false,
       },
     });
   } catch (err) {

@@ -1,7 +1,29 @@
 
 const router = require("express").Router();
 const Notification = require("../models/notification");
+const NotificationService = require("../utils/notificationService");
 const auth = require("../middleware/auth");
+
+// Send test notification
+router.post("/test", auth, async (req, res) => {
+  try {
+    const message = req.body.message || "This is a test notification from Furniro!";
+    
+    const notification = await NotificationService.createNotification(
+      req.user.id,
+      message
+    );
+    
+    res.json({
+      success: true,
+      message: "Test notification sent successfully",
+      notification
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 // Get all notifications for a user
 router.get("/", auth, async (req, res) => {

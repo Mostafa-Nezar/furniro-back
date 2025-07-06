@@ -5,10 +5,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String },
   cart: { type: Array, default: [] },
-  favorites: { type: Array, default: [] },
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
-  isAdmin: { type: Boolean, default: false },
   isSubscribed:{type:Boolean, default:false}
 });
 module.exports = mongoose.model("User", userSchema);
