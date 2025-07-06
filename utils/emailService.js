@@ -25,7 +25,7 @@ const sendWelcomeEmail = async (toEmail, userName) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Furniro" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: "Welcome to Furniro!",
       html: htmlContent,
