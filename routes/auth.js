@@ -194,5 +194,25 @@ router.get("/user/:id", async (req, res) => {
   }
 });
 
+router.patch("/user/:id", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { cart, ...rest } = req.body;
+
+  try {
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    if (cart) user.cart = cart;
+    Object.assign(user, rest);
+
+    await user.save();
+
+    res.json({ msg: "User updated", user });
+  } catch (err) {
+    console.error("❌ Update user error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+});
+
 module.exports = router;
 
