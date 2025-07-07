@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/order");
+const NotificationService = require("../utils/notificationService");
+
+// ⚙️ تحكم وهمي في المستخدم
+const isFakeUser = true;
+const fakeUserId = 99999;
 
 router.post("/paypal/webhook", async (req, res) => {
   const event = req.body;
@@ -20,9 +25,22 @@ router.post("/paypal/webhook", async (req, res) => {
       if (!existing) {
         await Order.create(newOrder);
         console.log("✅ PayPal Order saved");
+
+        if (isFakeUser) {
+          await NotificationService.createNotification(
+            fakeUserId,
+            `تم حفظ طلبك من باي بال بنجاح. المبلغ: $${newOrder.amount}`
+          );
+        }
       }
     } catch (err) {
       console.error("❌ Failed to save PayPal order:", err);
+      if (isFakeUser) {
+        await NotificationService.createNotification(
+          fakeUserId,
+          "حدث خطأ أثناء حفظ طلب باي بال."
+        );
+      }
     }
   }
 

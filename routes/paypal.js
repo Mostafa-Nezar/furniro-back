@@ -2,10 +2,13 @@ const express = require("express");
 const router = express.Router();
 const { client } = require("../config/paypal");
 const paypal = require("@paypal/checkout-server-sdk");
+const NotificationService = require("../utils/notificationService");
 
-// ✅ إنشاء أوردر باي بال
+const FAKE_USER_ID = 99999; // متغير وهمي تستخدمه بدل تحقق باي بال الحقيقي
+const IS_FAKE_USER_LOGGED = true; // تحكم في حال وجود مستخدم أو لا
+
 router.post("/create-paypal-order", async (req, res) => {
-  const { total = "20.00" } = req.body;
+  const { total = "20.00", userId = 99999 } = req.body;
 
   const request = new paypal.orders.OrdersCreateRequest();
   request.prefer("return=representation");
@@ -29,6 +32,13 @@ router.post("/create-paypal-order", async (req, res) => {
     const order = await client().execute(request);
     const approvalLink = order.result.links.find(link => link.rel === "approve")?.href;
 
+    // ✅ إرسال إشعار حتى قبل الدفع
+    const NotificationService = require("../utils/notificationService");
+    await NotificationService.createNotification(
+      userId,
+      `تم إنشاء طلب PayPal برقم #${order.result.id}. يرجى المتابعة للدفع.`
+    );
+
     console.log("✅ PayPal order created:", {
       id: order.result.id,
       approvalLink,
@@ -40,33 +50,9 @@ router.post("/create-paypal-order", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ PayPal create order error:", err);
-    res.status(500).json({ error: "Failed to create PayPal order" });
+    res.status(500).json({ error: "فشل في إنشاء الطلب" });
   }
 });
 
-// ✅ تأكيد الدفع
-router.post("/capture-paypal-order/:orderID", async (req, res) => {
-  const { orderID } = req.params;
-
-  const request = new paypal.orders.OrdersCaptureRequest(orderID);
-  request.requestBody({});
-
-  try {
-    const capture = await client().execute(request);
-
-    console.log("✅ Payment Captured:", capture.result);
-
-    res.status(200).json({
-      success: true,
-      data: capture.result,
-    });
-  } catch (err) {
-    console.error("❌ Capture failed:", err.message);
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-});
 
 module.exports = router;
