@@ -4,47 +4,52 @@ const Order = require("../models/order");
 const NotificationService = require("../utils/notificationService");
 
 // ⚙️ تحكم وهمي في المستخدم
-const isFakeUser = true;
-const fakeUserId = 99999;
+router.post("/create-paypal-order", async (req, res) => {
+  const { total = "20.00", userId = 99999 } = req.body;
 
-router.post("/paypal/webhook", async (req, res) => {
-  const event = req.body;
+  const request = new paypal.orders.OrdersCreateRequest();
+  request.prefer("return=representation");
+  request.requestBody({
+    intent: "CAPTURE",
+    purchase_units: [
+      {
+        amount: {
+          currency_code: "USD",
+          value: total,
+        },
+      },
+    ],
+    application_context: {
+      return_url: "https://example.com/success",
+      cancel_url: "https://example.com/cancel",
+    },
+  });
 
-  if (event.event_type === "CHECKOUT.ORDER.APPROVED") {
-    const newOrder = {
-      paypalOrderId: event.resource.id,
-      email: event.resource.payer.email_address,
-      name: event.resource.payer.name.given_name,
-      amount: event.resource.purchase_units[0].amount.value,
-      paymentStatus: "COMPLETED",
-      createdAt: new Date().toISOString(),
-    };
+  try {
+    const order = await client().execute(request);
+    const approvalLink = order.result.links.find(link => link.rel === "approve")?.href;
 
-    try {
-      const existing = await Order.findOne({ paypalOrderId: newOrder.paypalOrderId });
-      if (!existing) {
-        await Order.create(newOrder);
-        console.log("✅ PayPal Order saved");
+    // ✅ إرسال إشعار حتى قبل الدفع
+    const NotificationService = require("../utils/notificationService");
+    await NotificationService.createNotification(
+      userId,
+      `تم إنشاء طلب PayPal برقم #${order.result.id}. يرجى المتابعة للدفع.`
+    );
 
-        if (isFakeUser) {
-          await NotificationService.createNotification(
-            fakeUserId,
-            `تم حفظ طلبك من باي بال بنجاح. المبلغ: $${newOrder.amount}`
-          );
-        }
-      }
-    } catch (err) {
-      console.error("❌ Failed to save PayPal order:", err);
-      if (isFakeUser) {
-        await NotificationService.createNotification(
-          fakeUserId,
-          "حدث خطأ أثناء حفظ طلب باي بال."
-        );
-      }
-    }
+    console.log("✅ PayPal order created:", {
+      id: order.result.id,
+      approvalLink,
+    });
+
+    res.status(200).json({
+      id: order.result.id,
+      approveUrl: approvalLink,
+    });
+  } catch (err) {
+    console.error("❌ PayPal create order error:", err);
+    res.status(500).json({ error: "فشل في إنشاء الطلب" });
   }
-
-  res.status(200).send("Webhook received");
 });
+
 
 module.exports = router;
