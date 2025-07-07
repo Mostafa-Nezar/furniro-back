@@ -2,28 +2,40 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 module.exports = async (req, res, next) => {
-    // Get token from header
-    const token = req.header('x-auth-token');
+    const token = req.header('x-auth-token') ||
+        (req.header('Authorization') && req.header('Authorization').replace('Bearer ', ''));
 
-    // Check if no token
     if (!token) {
         return res.status(401).json({ msg: 'No token, authorization denied' });
     }
-
     try {
-        // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Get user from database
-        const user = await User.findById(decoded.user.id).select('-password');
-        if (!user) {
-            return res.status(401).json({ msg: 'Token is not valid' });
+
+        console.log('🔍 Decoded token:', decoded);
+        const userId = decoded.user ? decoded.user.id : decoded.id;
+
+        if (!userId) {
+            console.error('❌ No user ID found in token');
+            return res.status(401).json({ msg: 'Invalid token structure' });
         }
-        
+
+        console.log('🔍 Looking for user with ID:', userId);
+        const user = await User.findOne({ id: userId }).select('-password');
+        if (!user) {
+            console.error('❌ User not found with ID:', userId);
+            return res.status(401).json({ msg: 'User not found' });
+        }
+
+        console.log('✅ User found:', user.name);
         req.user = user;
         next();
     } catch (err) {
-        res.status(401).json({ msg: 'Token is not valid' });
+        console.error('❌ Auth middleware error:', err);
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({ msg: 'Invalid token' });
+        } else if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ msg: 'Token expired' });
+        }
+        res.status(401).json({ msg: 'Token verification failed' });
     }
 };
-

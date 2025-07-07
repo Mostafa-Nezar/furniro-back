@@ -1,34 +1,48 @@
 const express = require("express");
 const router = express.Router();
 const dotenv = require("dotenv");
-dotenv.config(); 
+dotenv.config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const NotificationService = require("../utils/notificationService");
 
 router.post("/create-checkout-session", async (req, res) => {
+  const { userId, products, customerInfo } = req.body;
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "منتج تجريبي",
-            },
-            unit_amount: 2000,
+      line_items: products.map((item) => ({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.name,
+            metadata: { productId: item.id },
           },
-          quantity: 1,
+          unit_amount: item.price * 100,
         },
-      ],
-      success_url: "https://example.com/success",
-      cancel_url: "https://example.com/cancel",
+        quantity: item.quantity,
+      })),
+      success_url: `https://your-domain.com/success`,
+      cancel_url: `https://your-domain.com/cancel`,
+      metadata: {
+        userId,
+      },
+      customer_email: customerInfo.email,
     });
 
     res.status(200).json({ url: session.url });
   } catch (error) {
-    console.error("Stripe error:", error.message);
+    console.error("Stripe Error:", error.message);
+
+    if (req.body.userId) {
+      await NotificationService.createNotification(
+        req.body.userId,
+        "فشلت محاولة الدفع. برجاء المحاولة مرة أخرى."
+      );
+    }
+
     res.status(500).json({ error: "فشل في إنشاء رابط الدفع" });
   }
 });

@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 
 const notificationSchema = mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: Number, // تغيير من ObjectId إلى Number للتوافق مع user model
     required: true,
   },
   message: {
@@ -20,6 +19,9 @@ const notificationSchema = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Notification", notificationSchema);
+// إضافة index للبحث السريع
+notificationSchema.index({ userId: 1, createdAt: -1 });
+notificationSchema.index({ userId: 1, read: 1 });
 
+module.exports = mongoose.model("Notification", notificationSchema);
 

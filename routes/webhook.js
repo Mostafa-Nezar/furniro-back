@@ -1,36 +1,38 @@
 const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Order = require("../models/order"); // موديل الطلبات
-const Product = require("../models/product"); // موديل المنتجات
+const Order = require("../models/order");
+const Product = require("../models/product");
+const NotificationService = require("../utils/notificationService");
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    const sig = req.headers["stripe-signature"];
+// ⚠️ IMPORTANT: only `"/"` here, because full path is declared in index.js
+router.post("/", express.raw({ type: "application/json" }), async (req, res) => {
+  const sig = req.headers["stripe-signature"];
 
-    let event;
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const userId = session.metadata?.userId;
+
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    } catch (err) {
-      console.error(`Webhook Error: ${err.message}`);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+        expand: ["data.price.product"],
+      });
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-
-      // Retrieve line items from the session
-      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price.product'] });
-
-      const productsInOrder = lineItems.data.map(item => ({
-        productId: item.price.product.metadata.productId, // Assuming you store product ID in metadata
+      const productsInOrder = lineItems.data.map((item) => ({
+        productId: item.price.product.metadata.productId,
         quantity: item.quantity,
         price: item.price.unit_amount / 100,
-        name: item.price.product.name
+        name: item.price.product.name,
       }));
 
       const newOrder = {
@@ -40,38 +42,36 @@ router.post(
         address: session.customer_details?.address,
         amount: session.amount_total / 100,
         paymentStatus: session.payment_status,
-        products: productsInOrder, // Add products to the order
+        products: productsInOrder,
         createdAt: new Date(session.created * 1000).toISOString(),
       };
 
-      try {
-        const existingOrder = await Order.findOne({ stripeSessionId: newOrder.stripeSessionId });
+      const existingOrder = await Order.findOne({ stripeSessionId: newOrder.stripeSessionId });
 
-        if (!existingOrder) {
-          await Order.create(newOrder);
-          console.log("✅ Order saved to MongoDB");
+      if (!existingOrder) {
+        const savedOrder = await Order.create(newOrder);
 
-          // Decrease product quantities
-          for (const item of productsInOrder) {
-            await Product.findOneAndUpdate(
-              { id: item.productId },
-              { $inc: { quantity: -item.quantity } }
-            );
-          }
-          console.log("✅ Product quantities decreased");
-
-        } else {
-          console.log("⚠️ Duplicate order, not saved again.");
+        for (const item of productsInOrder) {
+          await Product.findOneAndUpdate(
+            { id: item.productId },
+            { $inc: { quantity: -item.quantity } }
+          );
         }
-      } catch (error) {
-        console.error("❌ Error saving order to MongoDB:", error);
-      }
-    }
 
-    res.json({ received: true });
+        if (userId) {
+          await NotificationService.notifyPaymentSuccess(userId, savedOrder._id, savedOrder.amount);
+        }
+
+        console.log("✅ Order saved and notification sent");
+      } else {
+        console.log("⚠️ Duplicate order");
+      }
+    } catch (error) {
+      console.error("❌ Failed to save order or send notification:", error.message);
+    }
   }
-);
+
+  res.json({ received: true });
+});
 
 module.exports = router;
-
-

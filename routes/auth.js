@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
 const { sendWelcomeEmail } = require("../utils/emailService");
+const NotificationService = require("../utils/notificationService");
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -29,15 +30,27 @@ router.post("/signup", async (req, res) => {
       name,
       email,
       password: hashedPass,
-      isSubscribed:false
+      isSubscribed: false
     });
 
     await newUser.save();
 
     // Send welcome email
-    await sendWelcomeEmail(newUser.email, newUser.name);
+    try {
+      await sendWelcomeEmail(newUser.email, newUser.name);
+    } catch (emailError) {
+      console.error("❌ Welcome email error:", emailError);
+    }
 
-    const token = jwt.sign({ id: newUser.id }, JWT_SECRET, { expiresIn: "7d" });
+    // Send welcome notification
+    try {
+      await NotificationService.notifyWelcome(newUser.id, newUser.name);
+    } catch (notificationError) {
+      console.error("❌ Welcome notification error:", notificationError);
+    }
+
+    // إصلاح JWT token structure
+    const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.status(201).json({
       msg: "User registered successfully",
@@ -47,12 +60,12 @@ router.post("/signup", async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         cart: newUser.cart || [],
-        isSubscribed:newUser.isSubscribed || false
+        isSubscribed: newUser.isSubscribed || false
       },
     });
   } catch (err) {
     console.error("❌ Signup error:", err);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 });
 
@@ -69,7 +82,8 @@ router.post("/signin", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid password" });
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "7d" });
+    // إصلاح JWT token structure
+    const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.json({
       msg: "Login successful",
@@ -78,14 +92,14 @@ router.post("/signin", async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        image:user.image,
+        image: user.image,
         cart: user.cart || [],
         isSubscribed: user.isSubscribed || false,
       },
     });
   } catch (err) {
     console.error("❌ Signin error:", err);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 });
 
@@ -101,7 +115,7 @@ router.post("/google", async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { name, email } = payload;
+    const { email, name, picture } = payload;
 
     let user = await User.findOne({ email });
 
@@ -109,11 +123,34 @@ router.post("/google", async (req, res) => {
       const lastUser = await User.findOne().sort({ id: -1 });
       const nextId = lastUser ? lastUser.id + 1 : 1;
 
-      user = new User({ id: nextId, name, email, isGoogleUser: true });
+      user = new User({
+        id: nextId,
+        name,
+        email,
+        isGoogleUser: true,
+        image: picture,
+        isSubscribed: false
+      });
+
       await user.save();
+
+      // Send welcome email
+      try {
+        await sendWelcomeEmail(user.email, user.name);
+      } catch (emailError) {
+        console.error("❌ Welcome email error:", emailError);
+      }
+
+      // Send welcome notification
+      try {
+        await NotificationService.notifyWelcome(user.id, user.name);
+      } catch (notificationError) {
+        console.error("❌ Welcome notification error:", notificationError);
+      }
     }
 
-    const jwtToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "7d" });
+    // إصلاح JWT token structure
+    const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.json({
       msg: "Google login successful",
@@ -122,13 +159,40 @@ router.post("/google", async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        image: user.image,
         cart: user.cart || [],
+        isSubscribed: user.isSubscribed || false,
       },
     });
   } catch (err) {
-    console.error("❌ Google Sign-In Error:", err);
-    res.status(401).json({ msg: "Google authentication failed" });
+    console.error("❌ Google signin error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+});
+
+// Get user profile
+router.get("/user/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const user = await User.findOne({ id: userId }).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      cart: user.cart || [],
+      isSubscribed: user.isSubscribed || false,
+    });
+  } catch (err) {
+    console.error("❌ Get user error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 });
 
 module.exports = router;
+
