@@ -46,34 +46,30 @@ app.use("/api/products/db", require("./routes/products"));
 app.use("/api/ratings", require("./routes/ratings"));
 app.use("/api/payment", require("./routes/payment")); 
 app.use("/api/paypal", require("./routes/paypal"));  
+app.use("/api/orders", require("./routes/orders"))
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-// Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log("👤 User connected:", socket.id);
   
-  // Join user to their personal room for notifications
   socket.on("join", (userId) => {
     socket.join(`user_${userId}`);
     console.log(`👤 User ${userId} joined their notification room`);
   });
   
-  // Handle marking notification as read
   socket.on("markNotificationRead", async (data) => {
     try {
       const { notificationId, userId } = data;
-      // Emit to all user's connected devices
       io.to(`user_${userId}`).emit("notificationRead", { notificationId });
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   });
   
-  // Handle disconnect
   socket.on("disconnect", () => {
     console.log("👤 User disconnected:", socket.id);
   });
@@ -86,5 +82,3 @@ server.listen(PORT, () => {
 
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/notifications", require("./routes/notifications"));
-
-
