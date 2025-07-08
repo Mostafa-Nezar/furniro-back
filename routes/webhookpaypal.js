@@ -1,11 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const Order = require("../models/order");
+const { client } = require("../config/paypal");
+const paypal = require("@paypal/checkout-server-sdk");
 const NotificationService = require("../utils/notificationService");
 
-// ⚙️ تحكم وهمي في المستخدم
 router.post("/create-paypal-order", async (req, res) => {
-  const { total = "20.00", userId = 99999 } = req.body;
+  const { total, userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
 
   const request = new paypal.orders.OrdersCreateRequest();
   request.prefer("return=representation");
@@ -15,7 +19,7 @@ router.post("/create-paypal-order", async (req, res) => {
       {
         amount: {
           currency_code: "USD",
-          value: total,
+          value: total || "20.00",
         },
       },
     ],
@@ -29,8 +33,6 @@ router.post("/create-paypal-order", async (req, res) => {
     const order = await client().execute(request);
     const approvalLink = order.result.links.find(link => link.rel === "approve")?.href;
 
-    // ✅ إرسال إشعار حتى قبل الدفع
-    const NotificationService = require("../utils/notificationService");
     await NotificationService.createNotification(
       userId,
       `تم إنشاء طلب PayPal برقم #${order.result.id}. يرجى المتابعة للدفع.`
@@ -50,6 +52,5 @@ router.post("/create-paypal-order", async (req, res) => {
     res.status(500).json({ error: "فشل في إنشاء الطلب" });
   }
 });
-
 
 module.exports = router;

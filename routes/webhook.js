@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Order = require("../models/order");
-const Product = require("../models/product");
 const NotificationService = require("../utils/notificationService");
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -46,28 +44,17 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
         createdAt: new Date(session.created * 1000).toISOString(),
       };
 
-      const existingOrder = await Order.findOne({ stripeSessionId: newOrder.stripeSessionId });
+      console.log("📦 Checkout session completed:");
+      console.log("🧾 Order data:", newOrder);
 
-      if (!existingOrder) {
-        const savedOrder = await Order.create(newOrder);
-
-        for (const item of productsInOrder) {
-          await Product.findOneAndUpdate(
-            { id: item.productId },
-            { $inc: { quantity: -item.quantity } }
-          );
-        }
-
-        if (userId) {
-          await NotificationService.notifyPaymentSuccess(userId, savedOrder._id, savedOrder.amount);
-        }
-
-        console.log("✅ Order saved and notification sent");
-      } else {
-        console.log("⚠️ Duplicate order");
+      if (userId) {
+        await NotificationService.notifyPaymentSuccess(userId, "NO_DB_ORDER", newOrder.amount);
       }
+
+      console.log("✅ Notification sent without saving order");
+
     } catch (error) {
-      console.error("❌ Failed to save order or send notification:", error.message);
+      console.error("❌ Failed to process session:", error.message);
     }
   }
 

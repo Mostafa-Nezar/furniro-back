@@ -1,23 +1,25 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema({
-  stripeSessionId: { type: String, required: true, unique: true },
-  email: String,
+const productSchema = new mongoose.Schema({
   name: String,
-  address: Object,
-  amount: Number,
-  paymentStatus: String,
-  products: [
-    {
-      productId: { type: String, required: true },
-      name: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      price: { type: Number, required: true },
-    },
-  ],
-  createdAt: { type: Date, default: Date.now },
+  price: Number,
+  quantity: Number,
 });
 
-module.exports = mongoose.models.Order || mongoose.model("Order", orderSchema);
+const orderSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },
+  products: [productSchema],
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  total: {
+    type: Number,
+    required: true,
+  },
+});
 
-
+module.exports = mongoose.model("Order", orderSchema);

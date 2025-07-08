@@ -4,11 +4,9 @@ const { client } = require("../config/paypal");
 const paypal = require("@paypal/checkout-server-sdk");
 const NotificationService = require("../utils/notificationService");
 
-const FAKE_USER_ID = 99999; // متغير وهمي تستخدمه بدل تحقق باي بال الحقيقي
-const IS_FAKE_USER_LOGGED = true; // تحكم في حال وجود مستخدم أو لا
-
 router.post("/create-paypal-order", async (req, res) => {
-  const { total = "20.00", userId = 99999 } = req.body;
+  const { total = "20.00", userId } = req.body;
+  const finalUserId = userId; 
 
   const request = new paypal.orders.OrdersCreateRequest();
   request.prefer("return=representation");
@@ -32,10 +30,8 @@ router.post("/create-paypal-order", async (req, res) => {
     const order = await client().execute(request);
     const approvalLink = order.result.links.find(link => link.rel === "approve")?.href;
 
-    // ✅ إرسال إشعار حتى قبل الدفع
-    const NotificationService = require("../utils/notificationService");
     await NotificationService.createNotification(
-      userId,
+      finalUserId,
       `تم إنشاء طلب PayPal برقم #${order.result.id}. يرجى المتابعة للدفع.`
     );
 
@@ -53,6 +49,5 @@ router.post("/create-paypal-order", async (req, res) => {
     res.status(500).json({ error: "فشل في إنشاء الطلب" });
   }
 });
-
 
 module.exports = router;
