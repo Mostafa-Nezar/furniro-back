@@ -17,7 +17,6 @@ const io = new Server(server, {
   },
 });
 
-// Set Socket.IO instance in NotificationService
 NotificationService.setSocketIO(io);
 
 app.use(cors());
@@ -43,7 +42,6 @@ app.use(
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/upload", require("./routes/uploaduserimage"));
-app.use("/api/cart", require("./routes/cart"));
 app.use("/api/products/db", require("./routes/products"));
 app.use("/api/ratings", require("./routes/ratings"));
 app.use("/api/payment", require("./routes/payment")); 
