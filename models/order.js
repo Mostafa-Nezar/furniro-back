@@ -7,19 +7,11 @@ const productSchema = new mongoose.Schema({
 });
 
 const orderSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
+  userId: { type: String, required: true },
   products: [productSchema],
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  total: {
-    type: Number,
-    required: true,
-  },
+  date: { type: Date, default: Date.now },
+  total: { type: Number, required: true },
 });
+
 
 module.exports = mongoose.model("Order", orderSchema);
