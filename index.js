@@ -11,7 +11,6 @@ const rateLimit = require("express-rate-limit");
 
 dotenv.config();
 
-const logger = require("./utils/logger");
 const app = express();
 const server = http.createServer(app);
 
@@ -25,7 +24,12 @@ app.use(limiter);
 app.use(helmet());
 
 app.use(cors());
-app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static('uploads', {
+  setHeaders: (res, path, stat) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+}));
+
 
 const io = new Server(server, {
   cors: {
@@ -66,15 +70,15 @@ app.use("/api/notifications", require("./routes/notifications"));
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => logger.info("✅ Connected to MongoDB"))
-  .catch((err) => logger.error("❌ MongoDB error:", err));
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.log("❌ MongoDB error:", err));
 
 io.on("connection", (socket) => {
   console.log("👤 User connected:", socket.id);
 
   socket.on("join", (userId) => {
     socket.join(`user_${userId}`);
-    logger.log(`👤 User ${userId} joined their notification room`);
+    console.log(`👤 User ${userId} joined their notification room`);
   });
 
   socket.on("markNotificationRead", async (data) => {
@@ -92,5 +96,5 @@ io.on("connection", (socket) => {
 });
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-  logger.info(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

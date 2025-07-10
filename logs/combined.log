@@ -1,3 +1,19 @@
 [2025-07-10T11:03:02.150Z] INFO: 🚀 Server running at http://localhost:3001
 [2025-07-10T11:05:16.593Z] INFO: 🚀 Server running at http://localhost:3001
 [2025-07-10T11:05:46.792Z] ERROR: ❌ MongoDB error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+[2025-07-10T11:25:23.274Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:49:21.262Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:49:22.418Z] INFO: ✅ Connected to MongoDB
+[2025-07-10T11:50:54.790Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:50:55.741Z] INFO: ✅ Connected to MongoDB
+[2025-07-10T11:53:49.115Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:53:50.178Z] INFO: ✅ Connected to MongoDB
+[2025-07-10T11:56:32.627Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:56:33.906Z] INFO: ✅ Connected to MongoDB
+[2025-07-10T11:56:58.432Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T11:56:59.332Z] INFO: ✅ Connected to MongoDB
+[2025-07-10T12:00:20.018Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T12:28:03.031Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T12:28:18.869Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T13:13:30.803Z] INFO: 🚀 Server running at http://localhost:3001
+[2025-07-10T13:13:31.854Z] INFO: ✅ Connected to MongoDB
