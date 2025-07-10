@@ -8,7 +8,7 @@ const { Server } = require("socket.io");
 const NotificationService = require("./utils/notificationService");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-
+const compression = require('compression');
 dotenv.config();
 
 const app = express();
@@ -20,7 +20,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-
+app.use(compression());
 app.use(helmet());
 
 app.use(cors());
@@ -95,6 +95,7 @@ io.on("connection", (socket) => {
   });
 });
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
 });

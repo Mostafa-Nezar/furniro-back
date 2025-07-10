@@ -12,6 +12,7 @@
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
     "bcryptjs": "^3.0.2",
+    "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
