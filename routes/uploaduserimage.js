@@ -4,22 +4,19 @@ const { cloudinary, storage } = require('../config/cloudinary');
 const User = require('../models/user');
 const router = express.Router();
 
-const upload = multer({ storage }); // هنا بنستخدم تخزين Cloudinary
+const upload = multer({ storage });
 
-// رفع صورة جديدة
 router.post('/upload-avatar', upload.single('avatar'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
 
-  // الرابط الجاهز من Cloudinary
-  const fileUrl = req.file.path; // Cloudinary بيرجع URL في req.file.path
+  const fileUrl = req.file.path; 
   res.json({ success: true, avatarUrl: fileUrl });
 });
 
-// تحديث صورة المستخدم
 router.patch('/:id/update-image', upload.single('avatar'), async (req, res) => {
-  const userId = parseInt(req.params.id);
+  const userId = parseInt(req.params.id, 10);
 
   try {
     if (!req.file) {
@@ -31,10 +28,19 @@ router.patch('/:id/update-image', upload.single('avatar'), async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const imageUrl = req.file.path; // رابط Cloudinary
+    const imageUrl = req.file.path; 
     user.image = imageUrl;
     await user.save();
 
+    const io = req.app.get('io');
+    if (io) {
+      io.to(String(userId)).emit('avatarUpdated', {
+        userId,
+        imageUrl,
+        updatedAt: Date.now()
+      });
+    }
+    req.io.to(`user_${userId}`).emit("avatarUpdated", { userId, imageUrl });
     res.json({
       success: true,
       message: 'User image updated successfully',

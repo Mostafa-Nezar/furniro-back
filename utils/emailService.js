@@ -12,7 +12,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendWelcomeEmail = async (toEmail, userName) => {
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
   const websiteUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 
   const templatePath = path.join(__dirname, "../views/welcomeEmail.ejs");
@@ -20,7 +19,7 @@ const sendWelcomeEmail = async (toEmail, userName) => {
   try {
     const htmlContent = await ejs.renderFile(templatePath, {
       userName,
-      logoUrl: `${backendUrl}/uploads/logo.png`,
+      logoUrl: `https://res.cloudinary.com/dutetsivc/image/upload/furniro/Meubel_House_Logos-05.png`,
       websiteUrl,
     });
 
