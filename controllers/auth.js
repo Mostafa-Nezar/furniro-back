@@ -159,8 +159,12 @@ exports.googleSignIn = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
-    const userId = parseInt(req.params.id);
-    const user = await User.findOne({ id: userId }).select("-password");
+    const userId = Number(req.params.id); 
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+
+    const user = await User.findOne({ id: userId })
+      .select("-password")
+      .lean(); 
 
     if (!user) return res.status(404).json({ msg: "User not found" });
 
@@ -170,7 +174,7 @@ exports.getUser = async (req, res) => {
       email: user.email,
       image: user.image,
       cart: user.cart || [],
-      isSubscribed: user.isSubscribed || false,
+      isSubscribed: !!user.isSubscribed,
     });
   } catch (err) {
     console.error("❌ Get user error:", err);
@@ -179,20 +183,23 @@ exports.getUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const { cart } = req.body;
-
   try {
-    const user = await User.findOne({ id: userId });
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+
+    const { cart } = req.body;
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      cart ? { cart } : {},
+      { new: true, select: "-password" }
+    );
+
     if (!user) return res.status(404).json({ msg: "User not found" });
-
-    if (cart) user.cart = cart;
-
-    await user.save();
 
     res.json({ msg: "Cart updated successfully", cart: user.cart });
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("❌ Update user error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
