@@ -4,10 +4,12 @@ const ratingSchema = new mongoose.Schema({
   userid: {
     type: Number,
     required: true,
+    index: true
   },
   productid: {
     type: Number,
     required: true,
+    index: true
   },
   rate: {
     type: Number,
