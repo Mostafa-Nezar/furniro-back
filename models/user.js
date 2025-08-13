@@ -10,5 +10,7 @@ const userSchema = new mongoose.Schema({
   isSubscribed:{type:Boolean, default:false},
   isFacebookUser: { type: Boolean, default: false },
   facebookId: { type: String, unique: true, sparse: true },
+  phoneNumber: { type: String, default: null }, 
+  location: { type: String, default: null }
 });
 module.exports = mongoose.model("User", userSchema);
