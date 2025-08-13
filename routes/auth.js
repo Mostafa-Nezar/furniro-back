@@ -7,5 +7,5 @@ router.post("/signin", authController.signin);
 router.post("/google", authController.googleSignIn);
 router.get("/user/:id", authController.getUser);
 router.patch("/user/:id", authController.updateUser);
-
+router.post('/facebook', authController.facebookSignIn); 
 module.exports = router;

@@ -203,3 +203,75 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+exports.facebookSignIn = async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ msg: "Missing Facebook token" });
+  }
+
+  try {
+    const { data } = await axios.get(
+      `https://graph.facebook.com/me?fields=id,name,email,picture.type(large )&access_token=${token}`
+    );
+
+    const { email, name, picture, id: facebookId } = data;
+
+    if (!email) {
+      return res.status(400).json({ msg: "Could not retrieve email from Facebook." });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const lastUser = await User.findOne().sort({ id: -1 });
+      const nextId = lastUser ? lastUser.id + 1 : 1;
+      user = new User({
+        id: nextId,
+        name,
+        email,
+        isFacebookUser: true,
+        image: picture.data.url,
+        facebookId: facebookId, 
+        isSubscribed: false,
+      });
+
+      await user.save();
+
+      try {
+        await sendWelcomeEmail(user.email, user.name);
+      } catch (emailError) {
+        console.error("❌ Welcome email error:", emailError);
+      }
+      try {
+        await NotificationService.notifyWelcome(user.id, user.name);
+      } catch (notificationError) {
+        console.error("❌ Welcome notification error:", notificationError);
+      }
+    } else {
+      if (!user.facebookId) {
+        user.facebookId = facebookId;
+        user.image = user.image || picture.data.url;
+        await user.save();
+      }
+    }
+
+    const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({
+      msg: "Facebook login successful",
+      token: jwtToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        cart: user.cart || [],
+        isSubscribed: user.isSubscribed || false,
+      },
+    });
+
+  } catch (err) {
+    console.error("❌ Facebook signin error:", err.response ? err.response.data : err.message);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};

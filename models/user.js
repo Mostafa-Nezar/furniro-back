@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
   cart: { type: Array, default: [] },
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
-  isSubscribed:{type:Boolean, default:false}
+  isSubscribed:{type:Boolean, default:false},
+  isFacebookUser: { type: Boolean, default: false },
+  facebookId: { type: String, unique: true, sparse: true },
 });
 module.exports = mongoose.model("User", userSchema);
