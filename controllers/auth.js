@@ -27,6 +27,10 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPass,
       isSubscribed: false,
+       location: {
+      latitude: null,
+      longitude: null
+        }
     });
 
     await newUser.save();
