@@ -279,3 +279,32 @@ exports.facebookSignIn = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+exports.updateLocation = async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ msg: "Invalid user ID" });
+    }
+
+    const { location } = req.body;
+    if (!location) {
+      return res.status(400).json({ msg: "Location is required" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { location },
+      { new: true, select: "-password" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json({ msg: "Location updated successfully", location: user.location });
+  } catch (err) {
+    console.error("❌ Update location error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};

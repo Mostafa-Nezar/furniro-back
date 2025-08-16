@@ -8,4 +8,5 @@ router.post("/google", authController.googleSignIn);
 router.get("/user/:id", authController.getUser);
 router.patch("/user/:id", authController.updateUser);
 router.post('/facebook', authController.facebookSignIn); 
+router.put("/users/:id/location", authController.updateLocation);
 module.exports = router;
