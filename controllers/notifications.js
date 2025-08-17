@@ -41,14 +41,6 @@ exports.deleteNotification = async (req, res) => {
       return res.status(404).json({ message: "Notification not found" });
     }
 
-    console.log("--- DEBUGGING DELETE ---");
-    console.log("ID from Notification DB:", notification.userId);
-    console.log("Type of DB ID:", typeof notification.userId);
-    console.log("ID from Token (req.user.id):", req.user.id);
-    console.log("Type of Token ID:", typeof req.user.id);
-    console.log("Comparison Result:", notification.userId.toString() !== req.user.id.toString());
-    console.log("----------------------");
-
     if (notification.userId.toString() !== req.user.id.toString()) {
       return res.status(403).json({ message: "Not authorized" });
     }
