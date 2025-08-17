@@ -1,6 +1,5 @@
 const Notification = require("../models/notification");
 
-// Get all notifications (with pagination)
 exports.getNotifications = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -35,7 +34,6 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// Delete notification
 exports.deleteNotification = async (req, res) => {
   try {
     const notification = await Notification.findById(req.params.id);
@@ -43,7 +41,15 @@ exports.deleteNotification = async (req, res) => {
       return res.status(404).json({ message: "Notification not found" });
     }
 
-    if (notification.userId.toString() !== req.user.id) {
+    console.log("--- DEBUGGING DELETE ---");
+    console.log("ID from Notification DB:", notification.userId);
+    console.log("Type of DB ID:", typeof notification.userId);
+    console.log("ID from Token (req.user.id):", req.user.id);
+    console.log("Type of Token ID:", typeof req.user.id);
+    console.log("Comparison Result:", notification.userId.toString() !== req.user.id.toString());
+    console.log("----------------------");
+
+    if (notification.userId.toString() !== req.user.id.toString()) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -55,7 +61,7 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
-// Mark all as read
+
 exports.markAllRead = async (req, res) => {
   try {
     const result = await Notification.updateMany(
