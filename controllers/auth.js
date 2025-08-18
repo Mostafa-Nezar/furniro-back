@@ -90,8 +90,12 @@ exports.signin = async (req, res) => {
         image: user.image,
         cart: user.cart || [],
         isSubscribed: user.isSubscribed || false,
+        isGoogleUser: user.isGoogleUser || false,
+        phoneNumber: user.phoneNumber || null,
+        location: user.location || { lat: null, lng: null }
       },
     });
+
   } catch (err) {
     console.error("❌ Signin error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
