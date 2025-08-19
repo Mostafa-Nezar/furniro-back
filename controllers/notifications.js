@@ -53,7 +53,6 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
-
 exports.markAllRead = async (req, res) => {
   try {
     const result = await Notification.updateMany(
