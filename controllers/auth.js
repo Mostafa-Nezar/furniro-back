@@ -27,10 +27,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPass,
       isSubscribed: false,
-       location: {
-      latitude: null,
-      longitude: null
-        }
+       location: ""
     });
 
     await newUser.save();
@@ -92,7 +89,7 @@ exports.signin = async (req, res) => {
         isSubscribed: user.isSubscribed || false,
         isGoogleUser: user.isGoogleUser || false,
         phoneNumber: user.phoneNumber || null,
-        location: user.location || { lat: null, lng: null }
+        location: user.location || ""
       },
     });
 
