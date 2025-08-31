@@ -52,7 +52,7 @@ const productSchema = new mongoose.Schema({
   averagerate: Number,
   ratecount: Number,
   quantity: { type: Number, default: 0 }, // Added quantity field
-}, { collection: "productslists" });
+}, { collection: "productslists_sorted" });
 
 module.exports = mongoose.model("Product", productSchema);
 
