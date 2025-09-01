@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
   products: [productSchema],
   date: { type: Date, default: Date.now },
   total: { type: Number, required: true },
-  status: { type: String, enum: ["refused", "canceled", "accepted", "shipping", "delivered"], default: "pending" }
+  status: { type: String, enum: ["pending","refused", "canceled", "accepted", "shipping", "delivered"], default: "pending" }
 });
 
 module.exports = mongoose.model("Order", orderSchema);
