@@ -4,15 +4,11 @@ const productSchema = new mongoose.Schema({ name: String, price: Number,  quanti
 
 const orderSchema = new mongoose.Schema({
   userId: { type: String, required: true },
+  payment: {type: String, default: "cash on delivery"},
   products: [productSchema],
   date: { type: Date, default: Date.now },
   total: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["refused", "canceled", "accepted", "shipping", "delivered"],
-    default: "pending"
-  },
-    payment: {type: String, default: "cash on delivery"}
+  status: { type: String, enum: ["refused", "canceled", "accepted", "shipping", "delivered"], default: "pending" }
 });
 
 module.exports = mongoose.model("Order", orderSchema);
