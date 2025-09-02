@@ -24,3 +24,27 @@ exports.getUserOrders = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+exports.updateOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  if (!status) return res.status(400).json({ error: "Missing status" });
+
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error("❌ Error updating order status:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
