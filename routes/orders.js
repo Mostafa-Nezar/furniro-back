@@ -4,6 +4,6 @@ const { createOrder, getUserOrders, updateOrderStatus } = require("../controller
 
 router.post("/", createOrder);
 router.get("/user/:userId", getUserOrders);
-router.patch("/orders/:orderId/status", updateOrderStatus);
+router.patch("/:orderId/status", updateOrderStatus);
 
 module.exports = router;
