@@ -309,3 +309,32 @@ exports.updateLocation = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+exports.updatePhoneNumber = async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ msg: "Invalid user ID" });
+    }
+
+    const { phoneNumber } = req.body;
+    if (!phoneNumber) {
+      return res.status(400).json({ msg: "Phone number is required" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { phoneNumber },
+      { new: true, select: "-password" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json({ msg: "Phone number updated successfully", phoneNumber: user.phoneNumber });
+  } catch (err) {
+    console.error("❌ Update phone number error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
