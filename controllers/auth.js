@@ -258,6 +258,7 @@ exports.updatePhoneNumber = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    await NotificationService.createNotification(userId, `Your phone number has been updated to: ${phoneNumber}`);
     res.json({ msg: "Phone number updated successfully", phoneNumber: user.phoneNumber });
   } catch (err) {
     console.error("❌ Update phone number error:", err);
