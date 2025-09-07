@@ -11,10 +11,7 @@ const userSchema = new mongoose.Schema({
   isFacebookUser: { type: Boolean, default: false },
   facebookId: { type: String, unique: true, sparse: true },
   phoneNumber: { type: String, default: null }, 
-  location: {
-  lat: { type: Number, default: null },
-  lng: { type: Number, default: null }
-}
+  location:{ type: String, default: "" }
 
 });
 module.exports = mongoose.model("User", userSchema);
