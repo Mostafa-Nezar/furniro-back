@@ -4,7 +4,6 @@ const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
 const { sendWelcomeEmail } = require("../utils/emailService");
 const NotificationService = require("../utils/notificationService");
-
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET;
 
