@@ -26,7 +26,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPass,
       isSubscribed: false,
-       location: ""
+      location: ""
     });
 
     await newUser.save();
@@ -44,17 +44,12 @@ exports.signup = async (req, res) => {
     }
 
     const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
-
+    const userObj = newUser.toObject();
+    delete userObj.password;
     res.status(201).json({
       msg: "User registered successfully",
       token,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        cart: newUser.cart || [],
-        isSubscribed: newUser.isSubscribed || false,
-      },
+      user: userObj
     });
   } catch (err) {
     console.error("❌ Signup error:", err);
