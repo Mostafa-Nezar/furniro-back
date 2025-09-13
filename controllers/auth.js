@@ -31,11 +31,11 @@ exports.signup = async (req, res) => {
 
     await newUser.save();
 
-    try {
-      await sendWelcomeEmail(newUser.email, newUser.name);
-    } catch (emailError) {
-      console.error("❌ Welcome email error:", emailError);
-    }
+    // try {
+    //   await sendWelcomeEmail(newUser.email, newUser.name);
+    // } catch (emailError) {
+    //   console.error("❌ Welcome email error:", emailError);
+    // }
 
     try {
       await NotificationService.notifyWelcome(newUser.id, newUser.name);
@@ -261,39 +261,3 @@ exports.updatePhoneNumber = async (req, res) => {
   }
 };
 
-exports.signupx = async (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password)
-    return res.status(400).json({ msg: "All fields are required" });
-
-  try {
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ msg: "Email already exists" });
-
-    const hashedPass = await bcrypt.hash(password, 6);
-    const lastUser = await User.findOne().sort({ id: -1 });
-    const nextId = lastUser ? lastUser.id + 1 : 1;
-    const newUser = new User({
-      id: nextId,
-      name,
-      email,
-      password: hashedPass,
-      isSubscribed: false,
-      location: ""
-    });
-
-    await newUser.save();
-
-    const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
-    const userObj = newUser.toObject();
-    delete userObj.password;
-    res.status(201).json({
-      msg: "User registered successfully",
-      token,
-      user: userObj
-    });
-  } catch (err) {
-    console.error("❌ Signup error:", err);
-    res.status(500).json({ msg: "Server error", error: err.message });
-  }
-};
