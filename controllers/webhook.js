@@ -1,5 +1,7 @@
+
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const NotificationService = require("../utils/notificationService");
+const Order = require('../models/order'); // تأكد من صحة المسار
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -14,11 +16,13 @@ exports.handleStripeWebhook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // تعامل فقط مع حدث اكتمال الجلسة
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const userId = session.metadata?.userId;
 
     try {
+      // 1. استرجع تفاصيل المنتجات من الجلسة
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
         expand: ["data.price.product"],
       });
@@ -30,29 +34,40 @@ exports.handleStripeWebhook = async (req, res) => {
         name: item.price.product.name,
       }));
 
-      const newOrder = {
-        stripeSessionId: session.id,
-        email: session.customer_details?.email,
-        name: session.customer_details?.name,
-        address: session.customer_details?.address,
-        amount: session.amount_total / 100,
-        paymentStatus: session.payment_status,
+      // 2. جهّز بيانات الطلب الكاملة للحفظ
+      const orderData = {
+        userId: userId,
         products: productsInOrder,
-        createdAt: new Date(session.created * 1000).toISOString(),
+        date: new Date(session.created * 1000),
+        total: session.amount_total / 100,
+        payment: {
+          method: 'stripe',
+          paymentIntentId: session.payment_intent,
+          status: session.payment_status,
+          stripeSessionId: session.id
+        },
+        shippingAddress: {
+            name: session.customer_details?.name,
+            address: session.customer_details?.address
+        }
       };
 
-      console.log("📦 Checkout session completed:");
-      console.log("🧾 Order data:", newOrder);
+      // 3. أنشئ الطلب واحفظه في قاعدة البيانات
+      const newOrder = new Order(orderData);
+      await newOrder.save();
+      console.log(`✅ Order ${newOrder._id} has been successfully saved to the database.`);
 
+      // 4. أرسل إشعارًا للمستخدم بالنجاح (مع رقم الطلب الحقيقي)
       if (userId) {
-        await NotificationService.notifyPaymentSuccess(userId, "NO_DB_ORDER", newOrder.amount);
+        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, newOrder.total);
       }
 
-      console.log("✅ Notification sent without saving order");
     } catch (error) {
-      console.error("❌ Failed to process session:", error.message);
+      console.error("❌ Critical Error: Failed to process session and save order:", error.message);
+      // في تطبيق حقيقي، يجب إرسال تنبيه للمطور هنا لأن المال تم استلامه لكن الطلب لم يحفظ
     }
   }
 
+  // أرسل استجابة ناجحة إلى Stripe لتأكيد استلام الـ Webhook
   res.json({ received: true });
 };
