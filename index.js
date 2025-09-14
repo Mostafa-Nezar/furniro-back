@@ -67,6 +67,7 @@ app.use("/api/payment", require("./routes/payment"));
 app.use("/api/paypal", require("./routes/paypal"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/orders", require("./routes/orders"));
 
 mongoose
   .connect(process.env.MONGO_URI)
