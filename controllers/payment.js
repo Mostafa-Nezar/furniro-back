@@ -20,8 +20,8 @@ exports.createCheckoutSession = async (req, res) => {
         },
         quantity: item.quantity,
       })),
-      success_url: `https://your-domain.com/success`,
-      cancel_url: `https://your-domain.com/cancel`,
+      success_url: `https://furniro-react-jade.vercel.app`,
+      cancel_url: `https://furniro-react-jade.vercel.app`,
       metadata: {
         userId,
       },
