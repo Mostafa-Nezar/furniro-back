@@ -1,6 +1,9 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY_2);
+const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_2, {
+  apiVersion: "2024-06-20", // أو آخر نسخة مناسبة
+});
 
 exports.createPaymentIntent = async (req, res) => {
   try {
