@@ -1,4 +1,5 @@
 
+const Stripe = require("stripe");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_2, {
   apiVersion: "2024-06-20", // أو آخر نسخة مناسبة
 });
