@@ -52,6 +52,12 @@ app.use(
 );
 
 app.use(
+  "/api/payment/webhook2",
+  express.raw({ type: "application/json" }),
+  require("./routes/webhook2") 
+);
+
+app.use(
   "/api/paypal/webhook",
   express.raw({ type: "application/json" }),
   require("./routes/webhookpaypal")
