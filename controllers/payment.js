@@ -22,8 +22,18 @@ exports.createCheckoutSession = async (req, res) => {
       })),
       success_url: `https://furniro-react-jade.vercel.app`,
       cancel_url: `https://furniro-react-jade.vercel.app`,
-      metadata: {
+            metadata: {
         userId,
+        fullName: customerInfo.fullName,
+        email: customerInfo.email,
+        address: customerInfo.address,
+        city: customerInfo.city,
+        state: customerInfo.state,
+        zipCode: customerInfo.zipCode,
+      },
+      customer_email: customerInfo.email,
+      shipping_address_collection: {
+        allowed_countries: ["EG", "US"], 
       },
       customer_email: customerInfo.email,
     });

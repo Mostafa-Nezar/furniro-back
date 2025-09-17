@@ -31,6 +31,14 @@ exports.handleStripeWebhook = async (req, res) => {
         price: item.price.unit_amount / 100,
         name: item.price.product.name,
       }));
+      const customerInfo = {
+      fullName: session.metadata.fullName,
+      email: session.metadata.email,
+      address: session.metadata.address,
+      city: session.metadata.city,
+      state: session.metadata.state,
+      zipCode: session.metadata.zipCode,
+    };
 
       const orderData = {
         userId: userId,
@@ -43,10 +51,14 @@ exports.handleStripeWebhook = async (req, res) => {
           status: session.payment_status,
           stripeSessionId: session.id
         },
-        shippingAddress: {
-            name: session.customer_details?.name,
-            address: session.customer_details?.address
-        }
+        customerInfo,
+      shippingAddress: {
+        name: customerInfo.fullName,
+        address: customerInfo.address,
+        city: customerInfo.city,
+        state: customerInfo.state,
+        zipCode: customerInfo.zipCode,
+      }
       };
 
       const newOrder = new Order(orderData);
