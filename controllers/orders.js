@@ -1,7 +1,7 @@
 const Order = require("../models/order");
 
 exports.createOrder = async (req, res) => {
-  const { userId, products, date, total,payment } = req.body;
+  const { userId, products, date, total,payment, customerInfo } = req.body;
   if (!userId || !products || !date || total == null) return res.status(400).json({ error: "Missing fields" });
   try {
     const newOrder = new Order({ userId, products, date, customerInfo, total, payment });
