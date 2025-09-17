@@ -4,7 +4,7 @@ exports.createOrder = async (req, res) => {
   const { userId, products, date, total,payment } = req.body;
   if (!userId || !products || !date || total == null) return res.status(400).json({ error: "Missing fields" });
   try {
-    const newOrder = new Order({ userId, products, date, total, payment });
+    const newOrder = new Order({ userId, products, date, customerInfo, total, payment });
     await newOrder.save();
     res.status(201).json({ message: "Order saved" });
   } catch (err) {
