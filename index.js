@@ -52,7 +52,7 @@ app.use(
 );
 
 app.use(
-  "/api/payment/webhook2",
+  "/api/payment2/webhook2",
   express.raw({ type: "application/json" }),
   require("./routes/webhook2") 
 );
