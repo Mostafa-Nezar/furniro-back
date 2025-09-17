@@ -46,7 +46,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
       console.log(`✅ Order ${newOrder._id} (from Intent) has been successfully saved.`);
 
       if (userId) {
-        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, newOrder.total);
+        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "intent", newOrder.total);
       }
 
     } catch (error) {

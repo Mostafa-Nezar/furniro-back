@@ -54,7 +54,7 @@ exports.handleStripeWebhook = async (req, res) => {
       console.log(`✅ Order ${newOrder._id} has been successfully saved to the database.`);
 
       if (userId) {
-        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, newOrder.total);
+        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "session", newOrder.total);
       }
 
     } catch (error) {

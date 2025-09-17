@@ -67,8 +67,8 @@ class NotificationService {
         return await this.createNotification(userId, message);
     }
 
-    static async notifyPaymentSuccess(userId, orderId, amount) {
-        const message = `Payment of $${amount} for order #${orderId} has been processed successfully.`;
+    static async notifyPaymentSuccess(userId, orderId, paymentMethod,  amount) {
+        const message = `Payment of $${amount} for order #${orderId} ${paymentMethod} has been processed successfully.`;
         return await this.createNotification(userId, message);
     }
 
