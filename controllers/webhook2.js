@@ -46,7 +46,8 @@ exports.handleStripeWebhook2 = async (req, res) => {
         shippingAddress: {
           name: customerInfo.fullName,
           address: customerInfo.address
-        }
+        },
+        status:"paid"
       };
 
       const newOrder = new Order(orderData);

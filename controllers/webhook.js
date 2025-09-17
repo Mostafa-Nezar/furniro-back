@@ -58,7 +58,8 @@ exports.handleStripeWebhook = async (req, res) => {
         city: customerInfo.city,
         state: customerInfo.state,
         zipCode: customerInfo.zipCode,
-      }
+      },
+      status:"paid"
       };
 
       const newOrder = new Order(orderData);
