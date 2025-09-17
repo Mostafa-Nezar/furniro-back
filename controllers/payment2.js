@@ -14,9 +14,15 @@ exports.createPaymentIntent = async (req, res) => {
 
     const metadata = {
       userId: userId,
+      fullName: customerInfo.fullName,
+      email: customerInfo.email,
+      address: customerInfo.address,
+      city: customerInfo.city,
+      state: customerInfo.state,
+      zipCode: customerInfo.zipCode,
       products: JSON.stringify(products.map(p => ({ name: p.name, quantity: p.quantity }))),
-      customerName: customerInfo.name,
     };
+
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,

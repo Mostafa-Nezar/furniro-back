@@ -22,7 +22,14 @@ exports.handleStripeWebhook2 = async (req, res) => {
 
     try {
       const userId = paymentIntent.metadata.userId;
-      const customerName = paymentIntent.metadata.customerName;
+      const customerInfo = {
+      fullName: paymentIntent.metadata.fullName,
+      email: paymentIntent.metadata.email,
+      address: paymentIntent.metadata.address,
+      city: paymentIntent.metadata.city,
+      state: paymentIntent.metadata.state,
+      zipCode: paymentIntent.metadata.zipCode,
+    };
       const productsInOrder = JSON.parse(paymentIntent.metadata.products || '[]');
 
       const orderData = {
@@ -35,9 +42,10 @@ exports.handleStripeWebhook2 = async (req, res) => {
           paymentIntentId: paymentIntent.id,
           status: paymentIntent.status, 
         },
+        customerInfo,
         shippingAddress: {
-            name: customerName,
-            address: paymentIntent.shipping?.address
+          name: customerInfo.fullName,
+          address: customerInfo.address
         }
       };
 
