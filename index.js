@@ -72,6 +72,7 @@ app.use("/api/ratings", require("./routes/ratings"));
 app.use("/api/payment", require("./routes/payment"));
 app.use("/api/payment2", require("./routes/payment2"));
 app.use("/api/paypal", require("./routes/paypal"));
+app.use("/api/paypal2", require("./routes/paypal2"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/orders", require("./routes/orders"));
