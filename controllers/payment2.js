@@ -4,7 +4,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.createPaymentIntent = async (req, res) => {
   try {
-    const { total, userId, products, customerInfo } = req.body;
+    const { total, userId, products, customerInfo, userlocation } = req.body;
 
     if (total == null || total <= 0) {
       return res.status(400).json({ error: 'Total amount is required and must be greater than 0.' });
@@ -21,6 +21,7 @@ exports.createPaymentIntent = async (req, res) => {
       state: customerInfo.state,
       zipCode: customerInfo.zipCode,
       products: JSON.stringify(products.map(p => ({ name: p.name, quantity: p.quantity }))),
+      userlocation: userlocation || "",
     };
 
 

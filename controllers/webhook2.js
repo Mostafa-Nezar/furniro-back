@@ -50,7 +50,6 @@ exports.handleStripeWebhook2 = async (req, res) => {
         },
         status:"paid",
         paymentdone:"done",
-        userlocation: req.body.userlocation || "",
         deliveryDate: baseDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric"})
       };
 
