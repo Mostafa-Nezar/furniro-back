@@ -50,7 +50,8 @@ exports.handleStripeWebhook2 = async (req, res) => {
         },
         status:"paid",
         paymentdone:"done",
-        deliveryDate: baseDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric"})
+        deliveryDate: baseDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric"}),
+        userlocation: paymentIntent.metadata.userlocation,
       };
 
       const newOrder = new Order(orderData);
