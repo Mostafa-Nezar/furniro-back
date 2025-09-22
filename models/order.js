@@ -10,7 +10,9 @@ const orderSchema = new mongoose.Schema({
   customerInfo: customerInfoSchema,
   date: { type: Date, default: Date.now },
   total: { type: Number, required: true },
-  status: { type: String, enum: ["pending", "refused", "canceled", "paid", "shipping", "delivered"], default: "pending" }
+  status: { type: String, enum: ["pending", "refused", "canceled", "paid", "shipping", "delivered"], default: "pending" },
+  userlocation:{type: String, default:""},
+  deliveryDate: { type: String, default: "" }
 });
 
 module.exports = mongoose.model("Order", orderSchema);

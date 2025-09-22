@@ -31,7 +31,8 @@ exports.handleStripeWebhook2 = async (req, res) => {
       zipCode: paymentIntent.metadata.zipCode,
     };
       const productsInOrder = JSON.parse(paymentIntent.metadata.products || '[]');
-
+      const baseDate = new Date(paymentIntent.created * 1000);
+      baseDate.setDate(baseDate.getDate() + 3);
       const orderData = {
         userId: userId,
         products: productsInOrder,
@@ -48,7 +49,9 @@ exports.handleStripeWebhook2 = async (req, res) => {
           address: customerInfo.address
         },
         status:"paid",
-        paymentdone:"done"
+        paymentdone:"done",
+        userlocation: paymentIntent.metadata.userlocation || "",
+        deliveryDate: baseDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric"})
       };
 
       const newOrder = new Order(orderData);
