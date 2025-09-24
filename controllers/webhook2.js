@@ -30,6 +30,18 @@ exports.handleStripeWebhook2 = async (req, res) => {
       state: paymentIntent.metadata.state,
       zipCode: paymentIntent.metadata.zipCode,
     };
+    const paymentMethod = await stripe.paymentMethods.retrieve(
+      paymentIntent.payment_method
+    );
+
+    const cardInfo = paymentMethod.card
+      ? {
+          brand: paymentMethod.card.brand,
+          last4: paymentMethod.card.last4,
+          exp_month: paymentMethod.card.exp_month,
+          exp_year: paymentMethod.card.exp_year,
+          funding: paymentMethod.card.funding,
+        }: {};
       const productsInOrder = JSON.parse(paymentIntent.metadata.products || '[]');
       const baseDate = new Date(paymentIntent.created * 1000);
       baseDate.setDate(baseDate.getDate() + 3);
@@ -42,6 +54,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
           method: 'stripe_intent',
           paymentIntentId: paymentIntent.id,
           status: paymentIntent.status, 
+          card: cardInfo,
         },
         customerInfo,
         shippingAddress: {
