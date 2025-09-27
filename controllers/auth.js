@@ -123,11 +123,11 @@ exports.googleSignIn = async (req, res) => {
 
       await user.save();
 
-      try {
-        await sendWelcomeEmail(user.email, user.name);
-      } catch (emailError) {
-        console.error("❌ Welcome email error:", emailError);
-      }
+      // try {
+      //   await sendWelcomeEmail(user.email, user.name);
+      // } catch (emailError) {
+      //   console.error("❌ Welcome email error:", emailError);
+      // }
 
       try {
         await NotificationService.notifyWelcome(user.id, user.name);
