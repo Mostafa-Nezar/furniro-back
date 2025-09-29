@@ -7,10 +7,7 @@ const userSchema = new mongoose.Schema({
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
   isSubscribed:{type:Boolean, default:false},
-  isFacebookUser: { type: Boolean, default: false },
-  facebookId: { type: String, unique: true, sparse: true },
   phoneNumber: { type: String, default: null }, 
-  location:{ type: String, default: "" }
-
+  location:{ type: String, default: "" },
 });
 module.exports = mongoose.model("xser", userSchema);

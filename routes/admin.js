@@ -1,26 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/admin");
-const auth = require("../middleware/auth");
-
-const adminAuth = (req, res, next) => {
-  if (!req.user.isAdmin) {
-    return res.status(403).json({ msg: "Admin access denied" });
-  }
-  next();
-};
-
-router.get("/dashboard", auth, adminAuth, adminController.getDashboard);
-
-router.get("/users", auth, adminAuth, adminController.getUsers);
-router.put("/users/:id", auth, adminAuth, adminController.updateUserStatus);
-router.delete("/users/:id", auth, adminAuth, adminController.deleteUser);
-
-router.get("/products", auth, adminAuth, adminController.getProducts);
-router.post("/products", auth, adminAuth, adminController.addOrUpdateProduct);
-router.put("/products/:id", auth, adminAuth, adminController.updateProduct);
-router.delete("/products/:id", auth, adminAuth, adminController.deleteProduct);
-
-router.get("/orders", auth, adminAuth, adminController.getOrders);
+const multer = require("multer");
+const { storage } = require("../config/cloudinary");
+const upload = multer({ storage });
+router.get("/users", adminController.getUsers);
+router.get("/orders", adminController.getOrders);
+router.delete("/users/:id", adminController.deleteUser);
+router.post(
+  "/add-product",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 },
+  ]),
+  adminController.addProduct
+);
+router.post("/admin", adminController.registerAdmin);
+router.post("/admin/login", adminController.loginAdmin);
 
 module.exports = router;

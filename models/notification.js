@@ -46,4 +46,4 @@ notificationSchema.pre("save", async function (next) {
   next();
 });
 
-module.exports = mongoose.model("Notification", notificationSchema);
+module.exports = mongoose.model("Notification2", notificationSchema);

@@ -1,204 +1,173 @@
 const User = require("../models/user");
-const Product = require("../models/product");
 const Order = require("../models/order");
-const Rating = require("../models/rating");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Product = require("../models/product");
+const NotificationService = require("../utils/notificationService"); // استدعاء الخدمة
 
-// Dashboard statistics
-exports.getDashboard = async (req, res) => {
+exports.addProduct = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
-    const totalRatings = await Rating.countDocuments();
+    const body = req.body;
+    const files = req.files;
 
-    const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5);
-    const recentUsers = await User.find().select("-password").sort({ _id: -1 }).limit(5);
-
-    res.json({
-      statistics: { totalUsers, totalProducts, totalOrders, totalRatings },
-      recentOrders,
-      recentUsers
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    const uploadedImages = {};
+    for (let key of ["image", "image1", "image2", "image3", "image4"]) {
+      if (files[key]) {
+        uploadedImages[key] = files[key][0].path;
+      }
+    }
+    const parseJSON = (str, defaultValue = {}) => {
+  try {
+    return str && str.trim() !== "" ? JSON.parse(str) : defaultValue;
+  } catch {
+    return defaultValue;
   }
 };
 
-// Get all users
+const newProduct = new Product({
+  id: body.id,
+  key: body.key,
+  name: body.name,
+  price: body.price,
+  des: body.des,
+  not: body.not,
+  general: parseJSON(body.general, {
+    salespackage: "",
+    model: "",
+    secoundary: "",
+    configuration: "",
+    upholsterymaterial: "",
+    upholsterycolor: "",
+  }),
+  myproduct: parseJSON(body.myproduct, {
+    filingmaterial: "",
+    finishtype: "",
+    adjustheaderest: "",
+    maxmumloadcapcity: "",
+    originalofmanufacture: "",
+  }),
+  dimensions: parseJSON(body.dimensions, {
+    width: "",
+    height: "",
+    depth: "",
+    weight: "",
+    seatheight: "",
+    legheight: "",
+  }),
+  warranty: parseJSON(body.warranty, {
+    summry: "",
+    servicetype: "",
+    dominstic: "",
+    covered: "",
+    notcovered: "",
+  }),
+  sale: body.sale || 0,
+  averagerate: body.averagerate || 0,
+  ratecount: body.ratecount || 0,
+  quantity: body.quantity || 0,
+  ...uploadedImages
+});
+
+
+    await newProduct.save();
+    const users = await User.find({}, "id"); 
+    for (const user of users) {
+      await NotificationService.notifyProductBackInStock(user.id, newProduct.name);
+    }
+    res.status(201).json({ success: true, product: newProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+exports.registerAdmin = async (req, res) => {
+  try {
+    const { id, name, email, password, isGoogleUser, image, isSubscribed, facebookId, phoneNumber, location } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = new User({
+      id,
+      name,
+      email,
+      password: hashedPassword,
+      isGoogleUser: isGoogleUser || false,
+      image: image || null,
+      isSubscribed: isSubscribed || false,
+      facebookId: facebookId || null,
+      phoneNumber: phoneNumber || null,
+      location: location || "",
+      Admin: true, // ✨ أهم حاجة
+    });
+
+    await newAdmin.save();
+    res.status(201).json({ message: "Admin registered successfully", admin: newAdmin });
+  } catch (error) {
+    res.status(500).json({ message: "Error registering admin", error: error.message });
+  }
+};
+
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const admin = await User.findOne({ email, Admin: true });
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email, Admin: admin.Admin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({
+      message: "Admin logged in successfully",
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+      },
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error logging in admin", error: error.message });
+  }
+};
+
 exports.getUsers = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const users = await User.find()
-      .select("-password")
-      .skip(skip)
-      .limit(limit)
-      .sort({ _id: -1 });
-
-    const total = await User.countDocuments();
-
-    res.json({
-      users,
-      pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
-      }
-    });
+    const users = await User.find({});
+    res.status(200).json(users);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({ message: "Error fetching users", error: err.message });
   }
 };
 
-// Update user status
-exports.updateUserStatus = async (req, res) => {
-  try {
-    const { isAdmin } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { isAdmin },
-      { new: true }
-    ).select("-password");
-
-    if (!user) return res.status(404).json({ msg: "User not found" });
-
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Delete user
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-
-    if (!user) return res.status(404).json({ msg: "User not found" });
-
-    res.json({ msg: "User deleted successfully" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Get all products
-exports.getProducts = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const products = await Product.find()
-      .skip(skip)
-      .limit(limit)
-      .sort({ _id: -1 });
-
-    const total = await Product.countDocuments();
-
-    res.json({
-      products,
-      pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
-      }
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Add or update product quantity
-exports.addOrUpdateProduct = async (req, res) => {
-  try {
-    const { id, name, price, des, not, general, myproduct, dimensions, warranty, image, image1, image2, image3, image4, sale, averagerate, ratecount, quantity } = req.body;
-
-    let product = await Product.findOne({ id });
-
-    if (product) {
-      product.quantity = (product.quantity || 0) + (quantity || 1);
-      await product.save();
-      res.json(product);
-    } else {
-      product = new Product({
-        id, name, price, des, not, general, myproduct, dimensions, warranty,
-        image, image1, image2, image3, image4, sale, averagerate, ratecount,
-        quantity: quantity || 1
-      });
-      await product.save();
-      res.json(product);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+    res.status(200).json({ message: "User deleted successfully", user });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({ message: "Error deleting user", error: err.message });
   }
 };
 
-// Update product
-exports.updateProduct = async (req, res) => {
-  try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!product) return res.status(404).json({ msg: "Product not found" });
-
-    res.json(product);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Delete product
-exports.deleteProduct = async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-
-    if (!product) return res.status(404).json({ msg: "Product not found" });
-
-    res.json({ msg: "Product deleted successfully" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Get all orders
 exports.getOrders = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const orders = await Order.find()
-      .populate("userId", "name email")
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    const total = await Order.countDocuments();
-
-    res.json({
-      orders,
-      pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
-      }
-    });
+    const orders = await Order.find(); 
+    res.status(200).json(orders);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("❌ Error fetching orders:", err.message);
+    res.status(500).json({ message: "Error fetching orders", error: err.message });
   }
 };

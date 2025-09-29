@@ -51,7 +51,7 @@ const productSchema = new mongoose.Schema({
   sale: Number,
   averagerate: Number,
   ratecount: Number,
-  quantity: { type: Number, default: 0 }, // Added quantity field
+  quantity: { type: Number, default: 0 },
 }, { collection: "productslists_sorted" });
 
 module.exports = mongoose.model("Product", productSchema);
