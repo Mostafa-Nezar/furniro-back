@@ -111,6 +111,7 @@ exports.googleSignIn = async (req, res) => {
     if (!user) {
       const lastUser = await User.findOne().sort({ id: -1 });
       const nextId = lastUser ? lastUser.id + 1 : 1;
+      const fakePass = await bcrypt.hash(Math.random().toString(36), 10);
 
       user = new User({
         id: nextId,
@@ -118,6 +119,7 @@ exports.googleSignIn = async (req, res) => {
         email,
         isGoogleUser: true,
         image: picture,
+        password: fakePass,
         isSubscribed: false,
       });
 
