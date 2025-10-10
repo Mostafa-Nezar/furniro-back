@@ -3,7 +3,7 @@ const Order = require("../models/order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
-const NotificationService = require("../utils/notificationService"); // استدعاء الخدمة
+const NotificationService = require("../utils/notificationService");
 
 exports.addProduct = async (req, res) => {
   try {
@@ -30,7 +30,6 @@ const newProduct = new Product({
   name: body.name,
   price: body.price,
   des: body.des,
-  not: body.not,
   general: parseJSON(body.general, {
     salespackage: "",
     model: "",
@@ -169,5 +168,52 @@ exports.getOrders = async (req, res) => {
   } catch (err) {
     console.error("❌ Error fetching orders:", err.message);
     res.status(500).json({ message: "Error fetching orders", error: err.message });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;         
+    const { status } = req.body;            
+
+    const allowedStatuses = [ "refused", "shipping", "delivered"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Invalid status. Allowed values: ${allowedStatuses.join(", ")}` 
+      });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true } 
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, order: updatedOrder });
+  } catch (err) {
+    console.error("❌ Error updating order status:", err.message);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+exports.deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedProduct = await Product.findOneAndDelete({ id: id });
+
+    if (!deletedProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Product deleted successfully", product: deletedProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };

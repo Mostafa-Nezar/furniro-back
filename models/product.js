@@ -6,16 +6,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   des: { type: String },
-  not: { type: String },
-
-  general: {
-    salespackage: String,
-    model: String,
-    secoundary: String,
-    configuration: String,
-    upholsterymaterial: String,
-    upholsterycolor: String,
-  },
+  general: { salespackage: String, model: String, secoundary: String, configuration: String, upholsterymaterial: String, upholsterycolor: String },
 
   myproduct: {
     filingmaterial: String,
@@ -52,6 +43,7 @@ const productSchema = new mongoose.Schema({
   averagerate: Number,
   ratecount: Number,
   quantity: { type: Number, default: 0 },
+  date: { type: Number, default: Date.now }
 }, { collection: "productslists_sorted" });
 
 module.exports = mongoose.model("Product", productSchema);

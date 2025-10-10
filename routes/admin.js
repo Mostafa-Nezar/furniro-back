@@ -6,7 +6,9 @@ const { storage } = require("../config/cloudinary");
 const upload = multer({ storage });
 router.get("/users", adminController.getUsers);
 router.get("/orders", adminController.getOrders);
+router.patch("/orders/:id/status", adminController.updateOrderStatus);
 router.delete("/users/:id", adminController.deleteUser);
+router.delete("/products/:id/delete", adminController.deleteProduct);
 router.post(
   "/add-product",
   upload.fields([
