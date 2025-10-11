@@ -8,9 +8,6 @@ exports.createOrder = async (req, res) => {
     total,
     payment,
     customerInfo,
-    shippingAddress,
-    status,
-    paymentdone,
     deliveryDate,
     userlocation
   } = req.body;
@@ -27,7 +24,6 @@ exports.createOrder = async (req, res) => {
       total,
       payment: payment || { method: "cod", status: "pending" }, 
       customerInfo: customerInfo || {},
-      shippingAddress: shippingAddress || {},
       status: "pending",
       paymentdone: "cash on delivery",
       deliveryDate: deliveryDate || new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
@@ -43,7 +39,6 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
 
 exports.getUserOrders = async (req, res) => {
   const { userId } = req.params;
@@ -80,3 +75,4 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+

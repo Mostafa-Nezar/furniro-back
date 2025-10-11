@@ -9,6 +9,7 @@ router.get("/orders", adminController.getOrders);
 router.patch("/orders/:id/status", adminController.updateOrderStatus);
 router.delete("/users/:id", adminController.deleteUser);
 router.delete("/products/:id/delete", adminController.deleteProduct);
+router.delete("/orders/:id", adminController.deleteOrder);
 router.post(
   "/add-product",
   upload.fields([
