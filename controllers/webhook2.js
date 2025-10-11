@@ -48,7 +48,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
        for (const item of productsInOrder) {
         const product = await Product.findOne({ id: item.id });
         if (!product) {
-          console.warn(`⚠️ Product not found: ${item._id}`);
+          console.warn(`⚠️ Product not found: ${item.id}`);
           continue;
         }
         if (product.quantity < item.quantity) {
