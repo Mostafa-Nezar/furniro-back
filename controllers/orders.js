@@ -28,8 +28,8 @@ exports.createOrder = async (req, res) => {
       payment: payment || { method: "cod", status: "pending" }, 
       customerInfo: customerInfo || {},
       shippingAddress: shippingAddress || {},
-      status: status || "pending",
-      paymentdone: paymentdone || "notyet",
+      status: "pending",
+      paymentdone: "cash on delivery",
       deliveryDate: deliveryDate || new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
       userlocation: userlocation || "",
     };
