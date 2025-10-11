@@ -1,17 +1,49 @@
 const Order = require("../models/order");
 
 exports.createOrder = async (req, res) => {
-  const { userId, products, date, total,payment } = req.body;
-  if (!userId || !products || !date || total == null) return res.status(400).json({ error: "Missing fields" });
+  const {
+    userId,
+    products,
+    date,
+    total,
+    payment,
+    customerInfo,
+    shippingAddress,
+    status,
+    paymentdone,
+    deliveryDate,
+    userlocation
+  } = req.body;
+
+  if (!userId || !products || !date || total == null) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
   try {
-    const newOrder = new Order({ userId, products, date, total, payment });
+    const orderData = {
+      userId,
+      products,
+      date,
+      total,
+      payment: payment || { method: "cod", status: "pending" }, 
+      customerInfo: customerInfo || {},
+      shippingAddress: shippingAddress || {},
+      status: status || "pending",
+      paymentdone: paymentdone || "notyet",
+      deliveryDate: deliveryDate || new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+      userlocation: userlocation || "",
+    };
+
+    const newOrder = new Order(orderData);
     await newOrder.save();
-    res.status(201).json({ message: "Order saved" });
+
+    res.status(201).json({ message: "Order saved", orderId: newOrder._id });
   } catch (err) {
     console.error("❌ Error saving order:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 exports.getUserOrders = async (req, res) => {
   const { userId } = req.params;
