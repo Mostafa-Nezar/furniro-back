@@ -20,7 +20,7 @@ exports.createPaymentIntent = async (req, res) => {
       city: customerInfo.city,
       state: customerInfo.state,
       zipCode: customerInfo.zipCode,
-      products: JSON.stringify(products.map(p => ({ id:p.id, name: p.name, quantity: p.quantity,size:p.size,color:p.color }))),
+      products: JSON.stringify(products.map(p => ({ id:p.id, name: p.name, price: p.price, quantity: p.quantity, size:p.size, color:p.color }))),
       userlocation: userlocation || "",
     };
 
