@@ -2,7 +2,7 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const NotificationService = require("../utils/notificationService");
 const Order = require('../models/order'); 
-const Product = require('../models/product');
+
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_2;
 
 exports.handleStripeWebhook2 = async (req, res) => {
@@ -45,20 +45,6 @@ exports.handleStripeWebhook2 = async (req, res) => {
       const productsInOrder = JSON.parse(paymentIntent.metadata.products || '[]');
       const baseDate = new Date(paymentIntent.created * 1000);
       baseDate.setDate(baseDate.getDate() + 3);
-       for (const item of productsInOrder) {
-        const product = await Product.findOne({ id: item.id });
-        if (!product) {
-          console.warn(`⚠️ Product not found: ${item.id}`);
-          continue;
-        }
-        if (product.quantity < item.quantity) {
-          console.warn(`⚠️ Not enough stock for ${product.name}`);
-          continue;
-        }
-        product.quantity -= item.quantity;
-        await product.save();
-        console.log(`📦 Stock updated for ${product.name}: -${item.quantity}`);
-      }
       const orderData = {
         userId: userId,
         products: productsInOrder,
