@@ -8,9 +8,9 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_2;
 async function updateProductQuantities(products) {
   try {
     for (const item of products) {
-      const product = await Product.findById(item.id);
+      const product = await Product.findOne({ id: item.id }); 
       if (product) {
-        product.quantity -= item.quantity; 
+        product.quantity -= item.quantity;
         if (product.quantity < 0) product.quantity = 0;
         await product.save();
       }
@@ -19,6 +19,7 @@ async function updateProductQuantities(products) {
     console.error("❌ Error updating product quantities:", err.message);
   }
 }
+
 
 exports.handleStripeWebhook2 = async (req, res) => {
   const sig = req.headers["stripe-signature"];
