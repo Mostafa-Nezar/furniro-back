@@ -2,8 +2,23 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const NotificationService = require("../utils/notificationService");
 const Order = require('../models/order'); 
-
+const Product = require("../models/product");
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_2;
+
+async function updateProductQuantities(products) {
+  try {
+    for (const item of products) {
+      const product = await Product.findById(item.id);
+      if (product) {
+        product.quantity -= item.quantity; 
+        if (product.quantity < 0) product.quantity = 0;
+        await product.save();
+      }
+    }
+  } catch (err) {
+    console.error("❌ Error updating product quantities:", err.message);
+  }
+}
 
 exports.handleStripeWebhook2 = async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -70,6 +85,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
       const newOrder = new Order(orderData);
       await newOrder.save();
       console.log(`✅ Order ${newOrder._id} (from Intent) has been successfully saved.`);
+      await updateProductQuantities(productsInOrder);
 
       if (userId) {
         await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "intent", newOrder.total);
