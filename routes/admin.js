@@ -23,5 +23,17 @@ router.post(
 );
 router.post("/admin", adminController.registerAdmin);
 router.post("/admin/login", adminController.loginAdmin);
+router.put(
+  "/update-product/:id",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 },
+  ]),
+  adminController.adminUpdateProduct
+);
+
 
 module.exports = router;

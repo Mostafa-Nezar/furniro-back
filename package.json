@@ -13,6 +13,7 @@
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
     "bcryptjs": "^3.0.2",
+    "braintree": "^3.33.1",
     "cloudinary": "^1.41.3",
     "compression": "^1.8.0",
     "cors": "^2.8.5",

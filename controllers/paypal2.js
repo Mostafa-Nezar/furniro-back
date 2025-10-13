@@ -42,7 +42,7 @@ const paypalController = {
             currency_code: "USD",
             value: total.toString(),
           },
-          custom_id: JSON.stringify({ userId, products, customerInfo, total })
+          custom_id: `order-${Date.now()}`
         }],
       };
 
@@ -78,15 +78,12 @@ const paypalController = {
 
       const paypalData = await response.json();
 
-      // --- هذا هو الجزء الذي يقوم بحفظ الطلب في قاعدة البيانات ---
       if (paypalData.status === 'COMPLETED') {
         console.log(`(PayPal 2) Payment for Order ${paypalData.id} completed successfully.`);
 
-        // استرجاع بيانات الطلب التي خبأناها في custom_id
         const purchaseUnit = paypalData.purchase_units[0];
         const { userId, products, customerInfo, total } = JSON.parse(purchaseUnit.custom_id);
 
-        // إنشاء كائن الطلب بنفس بنية كود Stripe
         const orderData = {
           userId: userId,
           products: products,
@@ -105,7 +102,6 @@ const paypalController = {
         await newOrder.save();
         console.log(`✅ Order ${newOrder._id} (from PayPal) has been successfully saved.`);
 
-        // إرسال إشعار للمستخدم (بنفس طريقة كود Stripe)
         if (userId) {
           await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "paypal", newOrder.total);
         }
@@ -120,5 +116,4 @@ const paypalController = {
   }
 };
 
-// تصدير الكائن الذي يحتوي على دوال التحكم
 module.exports = paypalController;

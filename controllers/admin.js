@@ -238,3 +238,54 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ error: "Server error while deleting order" });
   }
 };
+
+exports.adminUpdateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const body = req.body;
+    const files = req.files;
+
+    const uploadedImages = {};
+    for (let key of ["image", "image1", "image2", "image3", "image4"]) {
+      if (files && files[key]) {
+        uploadedImages[key] = files[key][0].path;
+      }
+    }
+
+    const parseJSON = (str, defaultValue = {}) => {
+      try {
+        return str && str.trim() !== "" ? JSON.parse(str) : defaultValue;
+      } catch {
+        return defaultValue;
+      }
+    };
+
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+      return res.status(404).json({ success: false, message: "المنتج غير موجود" });
+    }
+
+    existingProduct.name = body.name ?? existingProduct.name;
+    existingProduct.price = body.price ?? existingProduct.price;
+    existingProduct.des = body.des ?? existingProduct.des;
+    existingProduct.general = parseJSON(body.general, existingProduct.general);
+    existingProduct.myproduct = parseJSON(body.myproduct, existingProduct.myproduct);
+    existingProduct.dimensions = parseJSON(body.dimensions, existingProduct.dimensions);
+    existingProduct.warranty = parseJSON(body.warranty, existingProduct.warranty);
+    existingProduct.sale = body.sale ?? existingProduct.sale;
+    existingProduct.averagerate = body.averagerate ?? existingProduct.averagerate;
+    existingProduct.ratecount = body.ratecount ?? existingProduct.ratecount;
+    existingProduct.quantity = body.quantity ?? existingProduct.quantity;
+
+    for (const [key, value] of Object.entries(uploadedImages)) {
+      existingProduct[key] = value;
+    }
+
+    await existingProduct.save();
+
+    res.status(200).json({ success: true, product: existingProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
