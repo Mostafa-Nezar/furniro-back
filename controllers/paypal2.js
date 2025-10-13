@@ -42,7 +42,7 @@ const paypalController = {
             currency_code: "USD",
             value: total.toString(),
           },
-          custom_id: JSON.stringify({ userId, products, customerInfo, total })
+          custom_id: `order-${Date.now()}`
         }],
       };
 
