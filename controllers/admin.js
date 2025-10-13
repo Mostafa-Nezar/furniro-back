@@ -260,7 +260,7 @@ exports.adminUpdateProduct = async (req, res) => {
       }
     };
 
-    const existingProduct = await Product.findById(productId);
+    const existingProduct = await Product.findOne({ id: Number(productId) });
     if (!existingProduct) {
       return res.status(404).json({ success: false, message: "المنتج غير موجود" });
     }
