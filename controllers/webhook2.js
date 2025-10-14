@@ -45,6 +45,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
       city: paymentIntent.metadata.city,
       state: paymentIntent.metadata.state,
       zipCode: paymentIntent.metadata.zipCode,
+      phoneNumber: paymentIntent.metadata.phoneNumber,
     };
     const paymentMethod = await stripe.paymentMethods.retrieve(
       paymentIntent.payment_method

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({id:Number, name: String, price: Number, quantity: Number, size:String, color:String });
-const customerInfoSchema = new mongoose.Schema({ fullName: String, email: String, address: String, city: String, state: String, zipCode: String });
+const customerInfoSchema = new mongoose.Schema({ fullName: String, email: String, address: String, city: String, state: String, zipCode: String, phoneNumber: Number });
 const orderSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   paymentdone: {type: String, default: "cash on delivery"},
