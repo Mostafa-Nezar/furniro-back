@@ -260,27 +260,12 @@ exports.adminUpdateProduct = async (req, res) => {
         return defaultValue;
       }
     };
-     let existingProduct = null;
 
-    // لو ID رقم → دور بـ findOne (على _id أو id)
-    if (!isNaN(productId)) {
-      existingProduct = await Product.findOne({
-        $or: [{ _id: Number(productId) }, { id: Number(productId) }],
-      });
-    } 
-    // لو ID ObjectId → استخدم findById
-    else {
-      try {
-        existingProduct = await Product.findById(productId);
-      } catch {
-        // لو مش ObjectId صحيح، جرب كـ id عادي
-        existingProduct = await Product.findOne({ id: productId });
-      }
-    }
-
+    const existingProduct = await Product.findOne({ id: Number(productId) });
     if (!existingProduct) {
       return res.status(404).json({ success: false, message: "المنتج غير موجود" });
     }
+
     existingProduct.name = body.name ?? existingProduct.name;
     existingProduct.price = body.price ?? existingProduct.price;
     existingProduct.des = body.des ?? existingProduct.des;
