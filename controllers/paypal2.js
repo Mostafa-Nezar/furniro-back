@@ -101,6 +101,7 @@ const paypalController = {
         const newOrder = new Order(orderData);
         await newOrder.save();
         console.log(`✅ Order ${newOrder._id} (from PayPal) has been successfully saved.`);
+        req.io.emit("productsChanged");
 
         if (userId) {
           await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "paypal", newOrder.total);

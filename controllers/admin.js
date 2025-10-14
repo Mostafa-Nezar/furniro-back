@@ -283,6 +283,8 @@ exports.adminUpdateProduct = async (req, res) => {
     }
 
     await existingProduct.save();
+    req.io.emit("productsChanged");
+
 
     res.status(200).json({ success: true, product: existingProduct });
   } catch (err) {
