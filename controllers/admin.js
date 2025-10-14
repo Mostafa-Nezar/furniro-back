@@ -26,6 +26,7 @@ exports.addProduct = async (req, res) => {
 
 const newProduct = new Product({
   id: body.id,
+  _id: body.id,
   key: body.key,
   name: body.name,
   price: body.price,
