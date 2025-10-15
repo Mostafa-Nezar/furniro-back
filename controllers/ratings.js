@@ -13,18 +13,23 @@ exports.getAllRatings = async (req, res) => {
 
 exports.addRating = async (req, res) => {
   try {
-    const {  userid, productid, rateid, rate } = req.body;
+    const {  userid, productid, rateid, rate, comment } = req.body;
 
     if (!userid || !productid || typeof rate !== "number") {
       return res.status(400).json({ msg: "Invalid data sent" });
     }
     let existingRating = await Rating.findOne({ rateid });
-        if (existingRating) {
+
+    if (!existingRating && comment && (!rate || rate === 0)) {
+      return res.status(400).json({ msg: "You must rate before commenting" });
+    }
+    if (existingRating) {
       existingRating.rate = rate;
+    if (comment) existingRating.comment = comment; 
       await existingRating.save();
       return res.status(200).json({ msg: "Rating updated successfully", rating: existingRating });
     } else {
-      const newRating = new Rating({ rateid, userid, productid, rate });
+      const newRating = new Rating({ rateid, userid, productid, rate, comment });
       await newRating.save();
       return res.status(201).json({ msg: "Rating created successfully", rating: newRating });
     }
