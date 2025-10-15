@@ -72,3 +72,4 @@ exports.getTopRatingsWithUsers = async (req, res) => {
     res.status(500).json({ msg: "Error fetching top ratings with users" });
   }
 };
+
