@@ -33,20 +33,3 @@ exports.addRating = async (req, res) => {
     res.status(500).json({ msg: "Failed to save rating" });
   }
 };
-
-exports.getTopRatings = async (req, res) => {
-  try {
-    const { rate } = req.query;
-    let filterRates = [5, 4]; 
-
-    if (rate) {
-      filterRates = rate.split(",").map((n) => Number(n));
-    }
-
-    const ratings = await Rating.find({ rate: { $in: filterRates } }).lean();
-    res.json(ratings);
-  } catch (err) {
-    console.error("❌ Error fetching top ratings:", err);
-    res.status(500).json({ msg: "Error fetching top ratings" });
-  }
-};
