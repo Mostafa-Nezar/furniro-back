@@ -33,3 +33,18 @@ exports.addRating = async (req, res) => {
     res.status(500).json({ msg: "Failed to save rating" });
   }
 };
+
+const User = require("../models/user");
+
+exports.getTopRatedUsers = async (req, res) => {
+  try {
+    const ratings = await Rating.find({ rate: { $in: [4, 5] } }).lean();
+
+    const userIds = [...new Set(ratings.map(r => r.userid))];
+    const users = await User.find({ id: { $in: userIds } }).lean();
+    res.json(users);
+  } catch (err) {
+    console.error("❌ Error fetching top rated users:", err);
+    res.status(500).json({ msg: "Error fetching top rated users" });
+  }
+};
