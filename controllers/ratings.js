@@ -1,4 +1,5 @@
 const Rating = require("../models/rating");
+const User = require("../models/user");
 
 exports.getAllRatings = async (req, res) => {
   try {
@@ -34,17 +35,35 @@ exports.addRating = async (req, res) => {
   }
 };
 
-const User = require("../models/user");
-
-exports.getTopRatedUsers = async (req, res) => {
+exports.getTopRatingsWithUsers = async (req, res) => {
   try {
-    const ratings = await Rating.find({ rate: { $in: [4, 5] } }).lean();
+    const productId = Number(req.params.productId); 
+
+    const ratings = await Rating.find({
+      productid: productId,
+      rate: { $in: [4, 5] }
+    }).lean();
 
     const userIds = [...new Set(ratings.map(r => r.userid))];
     const users = await User.find({ id: { $in: userIds } }).lean();
-    res.json(users);
+
+    const result = ratings.map(r => {
+      const user = users.find(u => u.id === r.userid);
+      return {
+        rate: r.rate,
+        comment: r.comment || null, 
+        createdAt: r.createdAt,
+        user: {
+          name: user?.name || "Unknown",
+          image: user?.image || null
+        }
+      };
+    });
+
+    res.json(result);
+
   } catch (err) {
-    console.error("❌ Error fetching top rated users:", err);
-    res.status(500).json({ msg: "Error fetching top rated users" });
+    console.error("❌ Error fetching top ratings with users:", err);
+    res.status(500).json({ msg: "Error fetching top ratings with users" });
   }
 };
