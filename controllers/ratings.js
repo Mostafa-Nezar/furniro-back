@@ -1,16 +1,15 @@
 const Rating = require("../models/rating");
 const User = require("../models/user");
-const Product = require("../models/product");
 
-// exports.getAllRatings = async (req, res) => {
-//   try {
-//     const ratings = await Rating.find().lean();
-//     res.json(ratings);
-//   } catch (err) {
-//     console.error("❌ Error fetching ratings:", err);
-//     res.status(500).json({ msg: "Error fetching ratings" });
-//   }
-// };
+exports.getAllRatings = async (req, res) => {
+  try {
+    const ratings = await Rating.find().lean();
+    res.json(ratings);
+  } catch (err) {
+    console.error("❌ Error fetching ratings:", err);
+    res.status(500).json({ msg: "Error fetching ratings" });
+  }
+};
 
 exports.addRating = async (req, res) => {
   try {
@@ -74,61 +73,3 @@ exports.getTopRatingsWithUsers = async (req, res) => {
   }
 };
 
-exports.addRatingx = async (req, res) => {
-  try {
-    const { userid, productid, rateid, rate } = req.body;
-    console.log("✅ Incoming request (addRatingx):", { userid, productid, rateid, rate });
-
-    if (!userid || !productid || typeof rate !== "number") {
-      console.log("❌ Invalid data sent");
-      return res.status(400).json({ msg: "Invalid data sent" });
-    }
-
-    let existingRating = await Rating.findOne({ rateid });
-    console.log("🔍 Existing rating:", existingRating);
-
-    if (existingRating) {
-      existingRating.rate = rate;
-      await existingRating.save();
-      console.log("✅ Rating updated:", existingRating);
-    } else {
-      const newRating = new Rating({ rateid, userid, productid, rate });
-      await newRating.save();
-      existingRating = newRating;
-      console.log("✅ New rating created:", existingRating);
-    }
-
-    const productRatings = await Rating.find({ productid });
-    console.log("📊 All product ratings:", productRatings.map(r => r.rate));
-
-    const avg = productRatings.reduce((acc, cur) => acc + cur.rate, 0) / productRatings.length;
-    console.log("📊 Calculated average rating:", avg);
-
-    const product = await Product.findOneAndUpdate(
-      { id: productid },
-      { averagerate: +avg.toFixed(1), ratecount: productRatings.length },
-      { new: true }
-    );
-    console.log("🏷️ Updated product:", product);
-
-    req.io.emit("ratingUpdated", { rating: existingRating, product });
-    console.log("📡 Emitted ratingUpdated event");
-
-    res.status(200).json({ rating: existingRating, product });
-  } catch (err) {
-    console.error("❌ Failed to save rating:", err);
-    res.status(500).json({ msg: "Failed to save rating" });
-  }
-};
-
-exports.getAllRatings = async (req, res) => {
-  try {
-    console.log("📥 Fetching all ratings...");
-    const ratings = await Rating.find().lean();
-    console.log("✅ Ratings fetched:", ratings.length, "ratings");
-    res.json(ratings);
-  } catch (err) {
-    console.error("❌ Error fetching ratings:", err);
-    res.status(500).json({ msg: "Error fetching ratings" });
-  }
-};
