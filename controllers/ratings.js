@@ -24,7 +24,7 @@ exports.addRating = async (req, res) => {
       return res.status(400).json({ msg: "You must rate before commenting" });
     }
     if (existingRating) {
-      existingRating.rate = rate;
+    if (rate && rate > 0) existingRating.rate = rate;
     if (comment) existingRating.comment = comment; 
       await existingRating.save();
       return res.status(200).json({ msg: "Rating updated successfully", rating: existingRating });
