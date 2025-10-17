@@ -1,5 +1,6 @@
 const Rating = require("../models/rating");
 const User = require("../models/user");
+const Product = require("../models/product");
 
 exports.getAllRatings = async (req, res) => {
   try {
@@ -73,3 +74,42 @@ exports.getTopRatingsWithUsers = async (req, res) => {
   }
 };
 
+exports.addRatingtest = async (req, res) => {
+  try {
+    const { userid, productid, rateid, rate, comment } = req.body;
+
+    if (!userid || !productid || typeof rate !== "number") {
+      return res.status(400).json({ msg: "Invalid data sent" });
+    }
+
+    let rating = await Rating.findOne({ rateid });
+
+    if (rating) {
+      if (rate > 0) rating.rate = rate;
+      if (comment) rating.comment = comment;
+      await rating.save();
+    } else {
+      rating = new Rating({ rateid, userid, productid, rate, comment });
+      await rating.save();
+    }
+
+    const allRatings = await Rating.find({ productid });
+    const total = allRatings.reduce((acc, r) => acc + r.rate, 0);
+    const avg = +(total / allRatings.length).toFixed(1);
+
+    await Product.findOneAndUpdate(
+      { id: productid },
+      { $set: { averagerate: avg, ratecount: allRatings.length } }
+    );
+
+    res.status(200).json({
+      msg: rating.isNew ? "Rating created successfully" : "Rating updated successfully",
+      rating,
+      averagerate: avg,
+      ratecount: allRatings.length,
+    });
+  } catch (err) {
+    console.error("❌ Failed to save rating:", err);
+    res.status(500).json({ msg: "Failed to save rating" });
+  }
+};
