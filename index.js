@@ -77,7 +77,7 @@ app.use("/api", require("./routes/admin"));
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/braintree", require("./routes/braintree"));
-
+app.use("/api/post", require("./routes/post"));
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
