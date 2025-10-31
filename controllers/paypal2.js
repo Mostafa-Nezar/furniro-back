@@ -4,33 +4,21 @@ const NotificationService = require("../utils/notificationService");
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_API_BASE } = process.env;
 const generateAccessToken = async () => {
   try {
-    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-      throw new Error("PayPal Client ID or Secret is not set in environment variables.");
-    }
     const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString("base64");
     const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
       method: "POST",
       body: "grant_type=client_credentials",
       headers: {
         "Authorization": `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded" // إضافة هذا السطر قد يساعد
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "MyApp/1.0 (Node.js)" // أضف هذا السطر
       },
     });
-
-    // إذا لم تكن الاستجابة JSON، اطبعها كنص
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("PayPal API Error Response:", errorText);
-      throw new Error(`Failed to get access token. Status: ${response.status}`);
-    }
-
     const data = await response.json();
     return data.access_token;
-
   } catch (error) {
     console.error("Failed to generate PayPal 2 Access Token:", error);
-    // لا تلقي خطأ جديدًا هنا حتى لا تخفي الخطأ الأصلي
-    throw error;
+    throw new Error("Could not generate PayPal 2 access token.");
   }
 };
 
