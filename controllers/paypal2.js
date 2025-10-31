@@ -8,11 +8,7 @@ const generateAccessToken = async () => {
     const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
       method: "POST",
       body: "grant_type=client_credentials",
-      headers: {
-        "Authorization": `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "MyApp/1.0 (Node.js)" // أضف هذا السطر
-      },
+      headers: { Authorization: `Basic ${auth}` },
     });
     const data = await response.json();
     return data.access_token;
