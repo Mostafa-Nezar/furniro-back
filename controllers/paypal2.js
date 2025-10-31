@@ -10,13 +10,10 @@ const generateAccessToken = async () => {
       body: "grant_type=client_credentials",
       headers: { Authorization: `Basic ${auth}` },
     });
-
     const data = await response.json();
-    console.log("PayPal token response:", data); 
-
-    if (!data.access_token) {
-      throw new Error(data.error_description || "Failed to get access token");
-    }
+    console.log("Client ID:", PAYPAL_CLIENT_ID?.slice(0, 6), "...");
+  console.log("Client Secret:", PAYPAL_CLIENT_SECRET?.slice(0, 6), "...");
+  console.log("PayPal API Base:", PAYPAL_API_BASE);
 
     return data.access_token;
   } catch (error) {
@@ -24,7 +21,6 @@ const generateAccessToken = async () => {
     throw new Error("Could not generate PayPal 2 access token.");
   }
 };
-
 
 const paypalController = {
 
