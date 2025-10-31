@@ -11,10 +11,6 @@ const generateAccessToken = async () => {
       headers: { Authorization: `Basic ${auth}` },
     });
     const data = await response.json();
-    console.log("Client ID:", PAYPAL_CLIENT_ID?.slice(0, 6), "...");
-  console.log("Client Secret:", PAYPAL_CLIENT_SECRET?.slice(0, 6), "...");
-  console.log("PayPal API Base:", PAYPAL_API_BASE);
-
     return data.access_token;
   } catch (error) {
     console.error("Failed to generate PayPal 2 Access Token:", error);
