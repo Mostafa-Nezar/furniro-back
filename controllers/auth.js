@@ -8,7 +8,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phoneNumber } = req.body;
   if (!name || !email || !password)
     return res.status(400).json({ msg: "All fields are required" });
 
@@ -26,6 +26,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPass,
       isSubscribed: false,
+      phoneNumber,
        location: ""
     });
 
@@ -261,3 +262,50 @@ exports.updatePhoneNumber = async (req, res) => {
   }
 };
 
+exports.updateUserImage = async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ msg: "Invalid user ID" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ msg: "No image file uploaded" });
+    }
+
+    const imageUrl = req.file.path;
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { image: imageUrl },
+      { new: true, select: "-password" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    await NotificationService.createNotification(
+      userId,
+      `Your profile image has been updated successfully.`
+    );
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(String(userId)).emit("avatarUpdated", {
+        userId,
+        imageUrl,
+        updatedAt: Date.now(),
+      });
+    }
+
+    res.json({
+      msg: "User image updated successfully",
+      imageUrl: user.image,
+      user,
+    });
+  } catch (err) {
+    console.error("❌ Update user image error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
