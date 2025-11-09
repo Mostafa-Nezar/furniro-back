@@ -7,20 +7,3 @@ exports.addPostSchema = Joi.object({
   title: Joi.string().min(3).max(200).required(),
   content: Joi.string().min(10).max(10000).required(),
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
