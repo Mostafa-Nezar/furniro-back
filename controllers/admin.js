@@ -177,7 +177,7 @@ exports.updateOrderStatus = async (req, res) => {
     const { id } = req.params;         
     const { status } = req.body;            
 
-    const allowedStatuses = [ "refused", "shipping", "delivered"];
+    const allowedStatuses = [ "refused", "shipping", "delivered", "cancelled"];
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ 
         success: false, 
