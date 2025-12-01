@@ -5,7 +5,7 @@ const cors = require("cors");
 const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
-const NotificationService = require("./utils/notificationService");
+const NotificationService = require("./src/utils/notificationService");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require('compression');
@@ -48,36 +48,36 @@ app.use((req, res, next) => {
 app.use(
   "/api/payment/webhook",
   express.raw({ type: "application/json" }),
-  require("./routes/webhook")
+  require("./src/routes/webhook")
 );
 
 app.use(
   "/api/payment2/webhook2",
   express.raw({ type: "application/json" }),
-  require("./routes/webhook2") 
+  require("./src/routes/webhook2") 
 );
 
 app.use(
   "/api/paypal/webhook",
   express.raw({ type: "application/json" }),
-  require("./routes/webhookpaypal")
+  require("./src/routes/webhookpaypal")
 );
 
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/upload", require("./routes/uploaduserimage"));
-app.use("/api/products/db", require("./routes/products"));
-app.use("/api/ratings", require("./routes/ratings"));
-app.use("/api/payment", require("./routes/payment"));
-app.use("/api/payment2", require("./routes/payment2"));
-app.use("/api/paypal", require("./routes/paypal"));
-app.use("/api/paypal2", require("./routes/paypal2"));
-app.use("/api", require("./routes/admin"));
-app.use("/api/notifications", require("./routes/notifications"));
-app.use("/api/orders", require("./routes/orders"));
-app.use("/api/braintree", require("./routes/braintree"));
-app.use("/api/post", require("./routes/post"));
+app.use("/api/auth", require("./src/routes/auth"));
+app.use("/api/upload", require("./src/routes/uploaduserimage"));
+app.use("/api/products/db", require("./src/routes/products"));
+app.use("/api/ratings", require("./src/routes/ratings"));
+app.use("/api/payment", require("./src/routes/payment"));
+app.use("/api/payment2", require("./src/routes/payment2"));
+app.use("/api/paypal", require("./src/routes/paypal"));
+app.use("/api/paypal2", require("./src/routes/paypal2"));
+app.use("/api", require("./src/routes/admin"));
+app.use("/api/notifications", require("./src/routes/notifications"));
+app.use("/api/orders", require("./src/routes/orders"));
+app.use("/api/braintree", require("./src/routes/braintree"));
+app.use("/api/post", require("./src/routes/post"));
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
