@@ -21,8 +21,8 @@ router.post(
   ]),
   adminController.addProduct
 );
-router.post("/admin", adminController.registerAdmin);
-router.post("/admin/login", adminController.loginAdmin);
+router.post("/adminregister", adminController.registerAdmin);
+router.post("/adminlogin", adminController.loginAdmin);
 router.put(
   "/update-product/:id",
   upload.fields([

@@ -1,9 +1,77 @@
-const User = require("../models/user");
+const Admin = require("../models/admin");
 const Order = require("../models/order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
 const NotificationService = require("../utils/notificationService");
+
+
+exports.registerAdmin = async (req, res) => {
+  try {
+    const { name, email, password, phoneNumber, location, role } = req.body;
+
+    const exists = await Admin.findOne({ email });
+    if (exists) return res.status(400).json({ msg: "Email already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = new Admin({
+      id: await getNextAdminId(),
+      name,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      location,
+      role: role || "admin",
+      permissions: role === "superadmin" ? ["all"] : [],
+    });
+
+    await newAdmin.save();
+
+    // Create token
+    const token = jwt.sign(
+      { id: newAdmin.id, email: newAdmin.email, role: newAdmin.role },
+      JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.status(201).json({
+      msg: "Admin registered successfully",
+      admin: newAdmin,
+      token,
+    });
+
+  } catch (error) {
+    res.status(500).json({ msg: "Server error", error: error.message });
+  }
+};
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(400).json({ msg: "Invalid email or password" });
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid email or password" });
+
+    const token = jwt.sign(
+      { id: admin.id, email: admin.email, role: admin.role },
+      JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.json({
+      msg: "Login successful",
+      admin,
+      token,
+    });
+
+  } catch (error) {
+    res.status(500).json({ msg: "Server error", error: error.message });
+  }
+};
+
 
 exports.addProduct = async (req, res) => {
   try {
@@ -78,66 +146,6 @@ const newProduct = new Product({
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error", error: err.message });
-  }
-};
-
-exports.registerAdmin = async (req, res) => {
-  try {
-    const { id, name, email, password, isGoogleUser, image, isSubscribed, facebookId, phoneNumber, location } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newAdmin = new User({
-      id,
-      name,
-      email,
-      password: hashedPassword,
-      isGoogleUser: isGoogleUser || false,
-      image: image || null,
-      isSubscribed: isSubscribed || false,
-      facebookId: facebookId || null,
-      phoneNumber: phoneNumber || null,
-      location: location || "",
-      Admin: true, // ✨ أهم حاجة
-    });
-
-    await newAdmin.save();
-    res.status(201).json({ message: "Admin registered successfully", admin: newAdmin });
-  } catch (error) {
-    res.status(500).json({ message: "Error registering admin", error: error.message });
-  }
-};
-
-exports.loginAdmin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const admin = await User.findOne({ email, Admin: true });
-    if (!admin) {
-      return res.status(404).json({ message: "Admin not found" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-
-    const token = jwt.sign(
-      { id: admin._id, email: admin.email, Admin: admin.Admin },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.status(200).json({
-      message: "Admin logged in successfully",
-      admin: {
-        id: admin._id,
-        name: admin.name,
-        email: admin.email,
-      },
-      token,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error logging in admin", error: error.message });
   }
 };
 
