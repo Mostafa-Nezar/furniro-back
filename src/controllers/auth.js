@@ -157,6 +157,52 @@ exports.googleSignIn = async (req, res) => {
   }
 };
 
+exports.updateUserImage = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer "))
+      return res.status(401).json({ msg: "No token provided" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(authHeader.split(" ")[1], JWT_SECRET);
+    } catch {
+      return res.status(401).json({ msg: "Invalid or expired token" });
+    }
+
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+    if (decoded.user.id !== userId)
+      return res.status(403).json({ msg: "Unauthorized: user ID mismatch" });
+
+    if (!req.file) return res.status(400).json({ msg: "No image file uploaded" });
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { image: req.file.path },
+      { new: true, select: "-password" }
+    );
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    await NotificationService.createNotification(
+      userId,
+      "Your profile image has been updated successfully."
+    );
+
+    req.app.get("io")?.to(String(userId)).emit("avatarUpdated", {
+      userId,
+      imageUrl: user.image,
+      updatedAt: Date.now(),
+    });
+
+    res.json({ msg: "User image updated successfully", imageUrl: user.image, user });
+
+  } catch (err) {
+    console.error("❌ Update user image error:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
 exports.getUser = async (req, res) => {
   try {
     const userId = Number(req.params.id); 
@@ -262,50 +308,42 @@ exports.updatePhoneNumber = async (req, res) => {
   }
 };
 
-exports.updateUserImage = async (req, res) => {
+exports.updateUserCart = async (req, res) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ msg: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);  // ← ← هنا التعديل
+    } catch (err) {
+      return res.status(401).json({ msg: "Invalid or expired token" });
+    }
+
     const userId = Number(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ msg: "Invalid user ID" });
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+
+    if (decoded.user.id !== userId) {
+      return res.status(403).json({ msg: "Unauthorized: user ID mismatch" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ msg: "No image file uploaded" });
-    }
-
-    const imageUrl = req.file.path;
+    const { cart } = req.body;
 
     const user = await User.findOneAndUpdate(
       { id: userId },
-      { image: imageUrl },
+      cart ? { cart } : {},
       { new: true, select: "-password" }
     );
 
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
+    if (!user) return res.status(404).json({ msg: "User not found" });
 
-    await NotificationService.createNotification(
-      userId,
-      `Your profile image has been updated successfully.`
-    );
-
-    const io = req.app.get("io");
-    if (io) {
-      io.to(String(userId)).emit("avatarUpdated", {
-        userId,
-        imageUrl,
-        updatedAt: Date.now(),
-      });
-    }
-
-    res.json({
-      msg: "User image updated successfully",
-      imageUrl: user.image,
-      user,
-    });
+    res.json({ msg: "Cart updated successfully", cart: user.cart });
   } catch (err) {
-    console.error("❌ Update user image error:", err);
+    console.error("❌ Update user error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
