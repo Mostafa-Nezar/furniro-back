@@ -287,14 +287,19 @@ exports.updateUserCart = async (req, res) => {
 
     const { cart } = req.body;
 
+    if (cart === undefined) {
+      return res.status(400).json({ msg: "Cart is required" });
+    }
+
     const user = await User.findOneAndUpdate(
       { id: userId },
-      cart ? { cart } : {},
+      { $set: { cart: Array.isArray(cart) ? cart : [] } },
       { new: true, select: "-password" }
     );
 
     if (!user) return res.status(404).json({ msg: "User not found" });
 
+    console.log("✅ Cart updated for user:", userId, "Cart:", user.cart);
     res.json({ msg: "Cart updated successfully", cart: user.cart });
   } catch (err) {
     console.error("❌ Update user error:", err);
