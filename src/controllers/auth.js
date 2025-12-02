@@ -27,7 +27,7 @@ exports.signup = async (req, res) => {
       password: hashedPass,
       isSubscribed: false,
       phoneNumber,
-       location: ""
+      location: ""
     });
 
     await newUser.save();
@@ -47,11 +47,11 @@ exports.signup = async (req, res) => {
     const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
     const userObj = newUser.toObject();
     delete userObj.password;
-      res.status(201).json({
-        msg: "User registered successfully",
-        token,
-        user: userObj
-      });
+    res.status(201).json({
+      msg: "User registered successfully",
+      token,
+      user: userObj
+    });
   } catch (err) {
     console.error("❌ Signup error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
@@ -262,47 +262,67 @@ exports.updatePhoneNumber = async (req, res) => {
   }
 };
 
+
 exports.updateUserCart = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ msg: "No token provided" });
+      return res.status(401).json({ msg: " server No token provided" });
     }
 
     const token = authHeader.split(" ")[1];
-
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET); 
+      decoded = jwt.verify(token, JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ msg: "Invalid or expired token" });
+      return res.status(401).json({ msg: " server Invalid or expired token" });
     }
 
     const userId = Number(req.params.id);
-    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+    if (isNaN(userId)) return res.status(400).json({ msg: " server Invalid user ID" });
 
     if (decoded.user.id !== userId) {
-      return res.status(403).json({ msg: "Unauthorized: user ID mismatch" });
+      return res.status(403).json({ msg: " server Unauthorized: user ID mismatch" });
     }
 
     const { cart } = req.body;
+    if (!cart) {
+      return res.status(400).json({ msg: " server Cart is required" });
+    }
 
-    if (cart === undefined) {
-      return res.status(400).json({ msg: "Cart is required" });
+    for (let item of cart) {
+      const product = await Product.findOne({ id: item.id });
+      if (!product) continue;
+
+      if (product.quantity <= 0) {
+        return res.status(400).json({ msg: " server Out of stock" });
+      }
+
+      if (item.quantity > product.quantity) {
+        return res
+          .status(400)
+          .json({ msg: `Only ${product.quantity} in stock` });
+      }
+
+      if (item.quantity > 10) {
+        return res
+          .status(400)
+          .json({ msg: " server You can only 10 items" });
+      }
     }
 
     const user = await User.findOneAndUpdate(
       { id: userId },
-      { $set: { cart: Array.isArray(cart) ? cart : [] } },
+      { $set: { cart } },
       { new: true, select: "-password" }
     );
 
-    if (!user) return res.status(404).json({ msg: "User not found" });
+    if (!user) return res.status(404).json({ msg: " server User not found" });
 
-    console.log("✅ Cart updated for user:", userId, "Cart:", user.cart);
-    res.json({ msg: "Cart updated successfully", cart: user.cart });
+    return res.json({ msg: " server Cart updated successfully", cart: user.cart });
+
   } catch (err) {
-    console.error("❌ Update user error:", err);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error(err);
+    return res.status(500).json({ msg: " server Server error", error: err.message });
   }
 };
