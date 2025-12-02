@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
+const Product = require("../models/product");
+
 const { sendWelcomeEmail } = require("../utils/emailService");
 const NotificationService = require("../utils/notificationService");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
