@@ -1,4 +1,5 @@
 const Admin = require("../models/admin");
+const User = require("../models/user");
 const Order = require("../models/order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -71,7 +72,6 @@ exports.loginAdmin = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
-
 
 exports.addProduct = async (req, res) => {
   try {
