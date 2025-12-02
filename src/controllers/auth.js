@@ -273,7 +273,7 @@ exports.updateUserCart = async (req, res) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);  // ← ← هنا التعديل
+      decoded = jwt.verify(token, JWT_SECRET); 
     } catch (err) {
       return res.status(401).json({ msg: "Invalid or expired token" });
     }

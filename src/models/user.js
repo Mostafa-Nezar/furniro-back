@@ -9,5 +9,6 @@ const userSchema = new mongoose.Schema({
   isSubscribed:{type:Boolean, default:false},
   phoneNumber: { type: String, default: null }, 
   location:{ type: String, default: "" },
+  cart: { type: Array, default: [] },
 });
 module.exports = mongoose.model("xser", userSchema);
