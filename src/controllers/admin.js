@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
 const NotificationService = require("../utils/notificationService");
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const getNextAdminId = async () => {
   const lastAdmin = await Admin.findOne().sort({ id: -1 });
