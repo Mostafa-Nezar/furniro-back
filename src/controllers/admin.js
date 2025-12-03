@@ -6,6 +6,10 @@ const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
 const NotificationService = require("../utils/notificationService");
 
+const getNextAdminId = async () => {
+  const lastAdmin = await Admin.findOne().sort({ id: -1 });
+  return lastAdmin ? lastAdmin.id + 1 : 1;
+};
 
 exports.registerAdmin = async (req, res) => {
   try {

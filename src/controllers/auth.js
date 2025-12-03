@@ -264,7 +264,6 @@ exports.updatePhoneNumber = async (req, res) => {
   }
 };
 
-
 exports.updateUserCart = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
