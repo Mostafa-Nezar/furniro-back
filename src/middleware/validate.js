@@ -5,7 +5,7 @@ module.exports = (schema, property = 'body') => (req, res, next) => {
     });
     if (error) {
         return res.status(400).json({
-            msg: 'Validation error',
+            msg: 'middleware: Validation error',
             details: error.details.map(d => ({ message: d.message, path: d.path })),
         });
     }

@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
         (req.header('Authorization') && req.header('Authorization').replace('Bearer ', ''));
 
     if (!token) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
+        return res.status(401).json({ msg: 'middleware: No token, authorization denied' });
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -14,22 +14,22 @@ module.exports = async (req, res, next) => {
         const userId = decoded.user ? decoded.user.id : decoded.id;
 
         if (!userId) {
-            return res.status(401).json({ msg: 'Invalid token structure' });
+            return res.status(401).json({ msg: 'middleware: Invalid token structure' });
         }
 
         const user = await User.findOne({ id: userId }).select('-password');
         if (!user) {
-            return res.status(401).json({ msg: 'User not found' });
+            return res.status(401).json({ msg: 'middleware: User not found' });
         }
 
         req.user = user;
         next();
     } catch (err) {
         if (err.name === 'JsonWebTokenError') {
-            return res.status(401).json({ msg: 'Invalid token' });
+            return res.status(401).json({ msg: 'middleware: Invalid token' });
         } else if (err.name === 'TokenExpiredError') {
-            return res.status(401).json({ msg: 'Token expired' });
+            return res.status(401).json({ msg: 'middleware: Token expired' });
         }
-        res.status(401).json({ msg: 'Token verification failed' });
+        res.status(401).json({ msg: 'middleware: Token verification failed' });
     }
 };

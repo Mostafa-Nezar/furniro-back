@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
         (req.header('Authorization') && req.header('Authorization').replace('Bearer ', ''));
 
     if (!token) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
+        return res.status(401).json({ msg: 'middleware: No token, authorization denied' });
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -14,27 +14,27 @@ module.exports = async (req, res, next) => {
         const adminId = decoded.id;
 
         if (!adminId) {
-            return res.status(401).json({ msg: 'Invalid token structure' });
+            return res.status(401).json({ msg: 'middleware: Invalid token structure' });
         }
 
         const admin = await Admin.findOne({ id: adminId }).select('-password');
         if (!admin) {
-            return res.status(401).json({ msg: 'Admin not found' });
+            return res.status(401).json({ msg: 'middleware: Admin not found' });
         }
 
         if (!admin.isActive) {
-            return res.status(403).json({ msg: 'Admin account is deactivated' });
+            return res.status(403).json({ msg: 'middleware: Admin account is deactivated' });
         }
 
         req.admin = admin;
         next();
     } catch (err) {
         if (err.name === 'JsonWebTokenError') {
-            return res.status(401).json({ msg: 'Invalid token' });
+            return res.status(401).json({ msg: 'middleware: Invalid token' });
         } else if (err.name === 'TokenExpiredError') {
-            return res.status(401).json({ msg: 'Token expired' });
+            return res.status(401).json({ msg: 'middleware: Token expired' });
         }
-        res.status(401).json({ msg: 'Token verification failed' });
+        res.status(401).json({ msg: 'middleware: Token verification failed' });
     }
 };
 
