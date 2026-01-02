@@ -14,7 +14,9 @@ exports.signup = async (req, res) => {
 
   try {
     const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ msg: "Email already exists" });
+    if (exists) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
 
     const hashedPass = await bcrypt.hash(password, 10);
     const lastUser = await User.findOne().sort({ id: -1 });
@@ -26,18 +28,13 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPass,
       isSubscribed: false,
-      phoneNumber,
+      phoneNumber: phoneNumber || null,
       location: ""
     });
 
     await newUser.save();
 
-    // try {
-    //   await sendWelcomeEmail(newUser.email, newUser.name);
-    // } catch (emailError) {
-    //   console.error("❌ Welcome email error:", emailError);
-    // }
-
+    // Send welcome notification (non-blocking)
     try {
       await NotificationService.notifyWelcome(newUser.id, newUser.name);
     } catch (notificationError) {
@@ -47,6 +44,7 @@ exports.signup = async (req, res) => {
     const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
     const userObj = newUser.toObject();
     delete userObj.password;
+
     res.status(201).json({
       msg: "User registered successfully",
       token,
@@ -54,6 +52,12 @@ exports.signup = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Signup error:", err);
+
+    // Handle MongoDB duplicate key error
+    if (err.code === 11000 || err.keyPattern?.email) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
+
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
@@ -63,10 +67,16 @@ exports.signin = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    // Security: Always return the same message to prevent email enumeration
+    if (!user || user.isGoogleUser || !user.password) {
+      return res.status(401).json({ msg: "Invalid email or password" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid password" });
+    if (!isMatch) {
+      return res.status(401).json({ msg: "Invalid email or password" });
+    }
 
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
