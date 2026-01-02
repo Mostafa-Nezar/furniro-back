@@ -5,13 +5,17 @@ const upload = multer({ storage });
 const router = express.Router();
 const authController = require("../controllers/auth");
 const { signupSchema } = require("../validators/user");
+const { signinSchema, googleSignInSchema, updateLocationSchema, updatePhoneNumberSchema } = require("../validators/auth");
 const validate = require("../middleware/validate");
+const auth = require("../middleware/auth");
+const checkOwnership = require("../middleware/checkOwnership");
+
 router.post("/signup", validate(signupSchema), authController.signup);
-router.post("/signin", authController.signin);
-router.post("/google", authController.googleSignIn);
-router.patch("/cart/:id/", authController.updateUserCart);
-router.patch("/:id/update-image", upload.single("avatar"), authController.updateUserImage);
-router.patch("/users/:id/location", authController.updateLocation);
-router.patch("/users/:id/phone", authController.updatePhoneNumber);
+router.post("/signin", validate(signinSchema), authController.signin);
+router.post("/google", validate(googleSignInSchema), authController.googleSignIn);
+router.patch("/cart/:id/", auth, checkOwnership, authController.updateUserCart);
+router.patch("/:id/update-image", auth, checkOwnership, upload.single("avatar"), authController.updateUserImage);
+router.patch("/users/:id/location", auth, checkOwnership, validate(updateLocationSchema), authController.updateLocation);
+router.patch("/users/:id/phone", auth, checkOwnership, validate(updatePhoneNumberSchema), authController.updatePhoneNumber);
 
 module.exports = router;

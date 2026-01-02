@@ -4,14 +4,22 @@ const adminController = require("../controllers/admin");
 const multer = require("multer");
 const { storage } = require("../config/cloudinary");
 const upload = multer({ storage });
-router.get("/users", adminController.getUsers);
-router.get("/orders", adminController.getOrders);
-router.patch("/orders/:id/status", adminController.updateOrderStatus);
-router.delete("/users/:id", adminController.deleteUser);
-router.delete("/products/:id/delete", adminController.deleteProduct);
-router.delete("/orders/:id", adminController.deleteOrder);
+const adminAuth = require("../middleware/adminAuth");
+
+// Public routes (no auth required)
+router.post("/adminregister", adminController.registerAdmin);
+router.post("/adminlogin", adminController.loginAdmin);
+
+// Protected routes (require admin auth)
+router.get("/users", adminAuth, adminController.getUsers);
+router.get("/orders", adminAuth, adminController.getOrders);
+router.patch("/orders/:id/status", adminAuth, adminController.updateOrderStatus);
+router.delete("/users/:id", adminAuth, adminController.deleteUser);
+router.delete("/products/:id/delete", adminAuth, adminController.deleteProduct);
+router.delete("/orders/:id", adminAuth, adminController.deleteOrder);
 router.post(
   "/add-product",
+  adminAuth,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "image1", maxCount: 1 },
@@ -21,10 +29,9 @@ router.post(
   ]),
   adminController.addProduct
 );
-router.post("/adminregister", adminController.registerAdmin);
-router.post("/adminlogin", adminController.loginAdmin);
 router.put(
   "/update-product/:id",
+  adminAuth,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "image1", maxCount: 1 },

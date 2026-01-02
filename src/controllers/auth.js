@@ -11,8 +11,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.signup = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
-  if (!name || !email || !password)
-    return res.status(400).json({ msg: "All fields are required" });
 
   try {
     const exists = await User.findOne({ email });
@@ -62,8 +60,6 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ msg: "Email and password are required" });
 
   try {
     const user = await User.findOne({ email });
@@ -98,7 +94,6 @@ exports.signin = async (req, res) => {
 
 exports.googleSignIn = async (req, res) => {
   const { token } = req.body;
-  if (!token) return res.status(400).json({ msg: "Missing Google token" });
 
   try {
     const ticket = await client.verifyIdToken({
@@ -161,24 +156,9 @@ exports.googleSignIn = async (req, res) => {
 
 exports.updateUserImage = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer "))
-      return res.status(401).json({ msg: "No token provided" });
-
-    let decoded;
-    try {
-      decoded = jwt.verify(authHeader.split(" ")[1], JWT_SECRET);
-    } catch {
-      return res.status(401).json({ msg: "Invalid or expired token" });
-    }
-
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
-    if (decoded.user.id !== userId)
-      return res.status(403).json({ msg: "Unauthorized: user ID mismatch" });
-
     if (!req.file) return res.status(400).json({ msg: "No image file uploaded" });
 
+    const userId = req.user.id;
     const user = await User.findOneAndUpdate(
       { id: userId },
       { image: req.file.path },
@@ -207,16 +187,8 @@ exports.updateUserImage = async (req, res) => {
 
 exports.updateLocation = async (req, res) => {
   try {
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ msg: "Invalid user ID" });
-    }
-
     const { location } = req.body;
-    if (!location) {
-      return res.status(400).json({ msg: "Location is required" });
-    }
-
+    const userId = req.user.id;
     const user = await User.findOneAndUpdate(
       { id: userId },
       { location },
@@ -236,16 +208,8 @@ exports.updateLocation = async (req, res) => {
 
 exports.updatePhoneNumber = async (req, res) => {
   try {
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ msg: "Invalid user ID" });
-    }
-
     const { phoneNumber } = req.body;
-    if (!phoneNumber) {
-      return res.status(400).json({ msg: "Phone number is required" });
-    }
-
+    const userId = req.user.id;
     const user = await User.findOneAndUpdate(
       { id: userId },
       { phoneNumber },
@@ -266,26 +230,10 @@ exports.updatePhoneNumber = async (req, res) => {
 
 exports.updateUserCart = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer "))
-      return res.status(401).json({ msg: "No token provided" });
-
-    const token = authHeader.split(" ")[1];
-    let decoded;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET);
-    } catch {
-      return res.status(401).json({ msg: "Invalid or expired token" });
-    }
-
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
-    if (decoded.user.id !== userId)
-      return res.status(403).json({ msg: "Unauthorized: user ID mismatch" });
-
     const { cart } = req.body;
     if (!cart) return res.status(400).json({ msg: "Cart is required" });
 
+    const userId = req.user.id;
     const ids = cart.map((item) => item.id);
 
     const products = await Product.find({ id: { $in: ids } });

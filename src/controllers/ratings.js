@@ -14,19 +14,15 @@ exports.getAllRatings = async (req, res) => {
 
 exports.addRating = async (req, res) => {
   try {
-    const {  userid, productid, rateid, rate, comment } = req.body;
-
-    if (!userid || !productid || typeof rate !== "number") {
-      return res.status(400).json({ msg: "Invalid data sent" });
-    }
+    const { userid, productid, rateid, rate, comment } = req.body;
     let existingRating = await Rating.findOne({ rateid });
 
     if (!existingRating && comment && (!rate || rate === 0)) {
       return res.status(400).json({ msg: "You must rate before commenting" });
     }
     if (existingRating) {
-    if (rate && rate > 0) existingRating.rate = rate;
-    if (comment) existingRating.comment = comment; 
+      if (rate && rate > 0) existingRating.rate = rate;
+      if (comment) existingRating.comment = comment;
       await existingRating.save();
       return res.status(200).json({ msg: "Rating updated successfully", rating: existingRating });
     } else {
@@ -43,7 +39,7 @@ exports.addRating = async (req, res) => {
 
 exports.getTopRatingsWithUsers = async (req, res) => {
   try {
-    const productId = Number(req.params.productId); 
+    const productId = Number(req.params.productId);
 
     const ratings = await Rating.find({
       productid: productId,
@@ -57,7 +53,7 @@ exports.getTopRatingsWithUsers = async (req, res) => {
       const user = users.find(u => u.id === r.userid);
       return {
         rate: r.rate,
-        comment: r.comment || null, 
+        comment: r.comment || null,
         createdAt: r.createdAt,
         user: {
           name: user?.name || "Unknown",
@@ -77,10 +73,6 @@ exports.getTopRatingsWithUsers = async (req, res) => {
 exports.addRatingtest = async (req, res) => {
   try {
     const { userid, productid, rateid, rate, comment } = req.body;
-
-    if (!userid || !productid || typeof rate !== "number") {
-      return res.status(400).json({ msg: "Invalid data sent" });
-    }
 
     let rating = await Rating.findOne({ rateid });
 

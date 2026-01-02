@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const Admin = require('../models/admin');
 
 module.exports = async (req, res, next) => {
     const token = req.header('x-auth-token') ||
@@ -11,18 +11,22 @@ module.exports = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const userId = decoded.user ? decoded.user.id : decoded.id;
+        const adminId = decoded.id;
 
-        if (!userId) {
+        if (!adminId) {
             return res.status(401).json({ msg: 'Invalid token structure' });
         }
 
-        const user = await User.findOne({ id: userId }).select('-password');
-        if (!user) {
-            return res.status(401).json({ msg: 'User not found' });
+        const admin = await Admin.findOne({ id: adminId }).select('-password');
+        if (!admin) {
+            return res.status(401).json({ msg: 'Admin not found' });
         }
 
-        req.user = user;
+        if (!admin.isActive) {
+            return res.status(403).json({ msg: 'Admin account is deactivated' });
+        }
+
+        req.admin = admin;
         next();
     } catch (err) {
         if (err.name === 'JsonWebTokenError') {
@@ -33,3 +37,4 @@ module.exports = async (req, res, next) => {
         res.status(401).json({ msg: 'Token verification failed' });
     }
 };
+

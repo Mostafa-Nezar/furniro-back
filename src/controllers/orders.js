@@ -12,17 +12,13 @@ exports.createOrder = async (req, res) => {
     userlocation
   } = req.body;
 
-  if (!userId || !products || !date || total == null) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
-
   try {
     const orderData = {
       userId,
       products,
       date,
       total,
-      payment: payment || { method: "cod", status: "pending" }, 
+      payment: payment || { method: "cod", status: "pending" },
       customerInfo: customerInfo || {},
       status: "pending",
       paymentdone: "cash on delivery",
@@ -55,8 +51,6 @@ exports.getUserOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   const { orderId } = req.params;
   const { status } = req.body;
-
-  if (!status) return res.status(400).json({ error: "Missing status" });
 
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
