@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
 const Product = require("../models/product");
@@ -94,6 +95,7 @@ exports.signin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
     const user = await User.findOne({ email });
     const location = await getLocationFromIP(ip);
 
@@ -109,9 +111,16 @@ exports.signin = async (req, res) => {
     await LoginLog.create({
       userId: user.id,
       email: user.email,
-      ip: req.ip,
+      ip: ip,
       userAgent: req.headers['user-agent'] || 'unknown',
-      location,
+      location: location || {
+        country: null,
+        city: null,
+        region: null,
+        latitude: null,
+        longitude: null,
+        locationString: null,
+      },
     });
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
@@ -333,7 +342,7 @@ exports.editUser = async (req, res) => {
   try {
     const userId = Number(req.params.id);
     if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
-    
+
     const updateData = req.body;
 
     const disallowedFields = ['id', 'password', 'isGoogleUser', 'cart'];
@@ -393,7 +402,7 @@ exports.checkToken = (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ msg: "No token provided" });
 
-  const token = authHeader.split(" ")[1]; 
+  const token = authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ msg: "No token provided" });
 
   try {
