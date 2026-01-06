@@ -168,7 +168,8 @@ exports.updateUserImage = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ msg: "No image file uploaded" });
 
-    const userId = req.user.id;
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
     const user = await User.findOneAndUpdate(
       { id: userId },
       { image: req.file.path },
@@ -198,7 +199,8 @@ exports.updateUserImage = async (req, res) => {
 exports.updateLocation = async (req, res) => {
   try {
     const { location } = req.body;
-    const userId = req.user.id;
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
     const user = await User.findOneAndUpdate(
       { id: userId },
       { location },
@@ -219,7 +221,8 @@ exports.updateLocation = async (req, res) => {
 exports.updatePhoneNumber = async (req, res) => {
   try {
     const { phoneNumber } = req.body;
-    const userId = req.user.id;
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
     const user = await User.findOneAndUpdate(
       { id: userId },
       { phoneNumber },
@@ -243,7 +246,8 @@ exports.updateUserCart = async (req, res) => {
     const { cart } = req.body;
     if (!cart) return res.status(400).json({ msg: "Cart is required" });
 
-    const userId = req.user.id;
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
     const ids = cart.map((item) => item.id);
 
     const products = await Product.find({ id: { $in: ids } });
@@ -290,3 +294,62 @@ exports.updateUserCart = async (req, res) => {
   }
 };
 
+exports.editUser = async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
+    
+    const updateData = req.body;
+
+    const disallowedFields = ['id', 'password', 'isGoogleUser', 'cart'];
+    disallowedFields.forEach(field => {
+      delete updateData[field];
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ msg: "No valid fields to update" });
+    }
+
+    if (updateData.email) {
+      const existingUser = await User.findOne({ email: updateData.email });
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ msg: "Email already exists" });
+      }
+    }
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { $set: updateData },
+      { new: true, select: "-password" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const updatedFields = Object.keys(updateData).join(", ");
+    try {
+      await NotificationService.createNotification(
+        userId,
+        `Your profile has been updated: ${updatedFields}`
+      );
+    } catch (notificationError) {
+      console.error("❌ Notification error:", notificationError);
+    }
+
+    res.json({
+      msg: "User updated successfully",
+      user
+    });
+
+  } catch (err) {
+    console.error("❌ Edit user error:", err);
+
+    // Handle MongoDB duplicate key error
+    if (err.code === 11000 || err.keyPattern?.email) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
+
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
