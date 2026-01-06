@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
 const Product = require("../models/product");
-
+const LoginLog = require("../models/loginhistory");
 const { sendWelcomeEmail } = require("../utils/emailService");
 const NotificationService = require("../utils/notificationService");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -68,7 +68,6 @@ exports.signin = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    // Security: Always return the same message to prevent email enumeration
     if (!user || user.isGoogleUser || !user.password) {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
@@ -78,6 +77,12 @@ exports.signin = async (req, res) => {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
 
+    await LoginLog.create({
+      userId: user.id,
+      email: user.email,
+      ip: req.ip,
+      userAgent: req.headers['user-agent'] || 'unknown',
+    });
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.json({
