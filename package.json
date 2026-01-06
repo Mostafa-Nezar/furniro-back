@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.2",
     "braintree": "^3.33.1",
     "cloudinary": "^1.41.3",

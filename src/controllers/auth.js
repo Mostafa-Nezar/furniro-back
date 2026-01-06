@@ -8,6 +8,34 @@ const { sendWelcomeEmail } = require("../utils/emailService");
 const NotificationService = require("../utils/notificationService");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET;
+const getLocationFromIP = async (ip) => {
+  try {
+    const res = await axios.get(`https://ipapi.co/${ip}/json/`);
+
+    const {
+      country_name,
+      city,
+      region,
+      latitude,
+      longitude,
+    } = res.data;
+
+    const locationString = [city, region, country_name]
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      country: country_name,
+      city,
+      region,
+      latitude,
+      longitude,
+      locationString,
+    };
+  } catch (err) {
+    return null;
+  }
+};
 
 exports.signup = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
@@ -67,6 +95,7 @@ exports.signin = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
+    const location = await getLocationFromIP(ip);
 
     if (!user || user.isGoogleUser || !user.password) {
       return res.status(401).json({ msg: "Invalid email or password" });
@@ -82,6 +111,7 @@ exports.signin = async (req, res) => {
       email: user.email,
       ip: req.ip,
       userAgent: req.headers['user-agent'] || 'unknown',
+      location,
     });
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
