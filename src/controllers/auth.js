@@ -353,3 +353,21 @@ exports.editUser = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+exports.checkToken = (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ msg: "No token provided" });
+
+  const token = authHeader.split(" ")[1]; 
+  if (!token) return res.status(401).json({ msg: "No token provided" });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({
+      msg: "Token is valid",
+      userId: decoded.user.id
+    });
+  } catch (err) {
+    res.status(401).json({ msg: "Token invalid or expired" });
+  }
+};

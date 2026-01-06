@@ -18,5 +18,5 @@ router.patch("/cart/:id/", auth, checkOwnership, authController.updateUserCart);
 router.patch("/:id/update-image", auth, checkOwnership, upload.single("avatar"), authController.updateUserImage);
 router.patch("/users/:id/location", auth, checkOwnership, validate(updateLocationSchema), authController.updateLocation);
 router.patch("/users/:id/phone", auth, checkOwnership, validate(updatePhoneNumberSchema), authController.updatePhoneNumber);
-
+router.get("/check-token", authController.checkToken);
 module.exports = router;
