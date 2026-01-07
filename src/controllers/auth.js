@@ -150,6 +150,7 @@ exports.googleSignIn = async (req, res) => {
   const { token } = req.body;
 
   try {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -159,6 +160,7 @@ exports.googleSignIn = async (req, res) => {
     const { email, name, picture } = payload;
 
     let user = await User.findOne({ email });
+    const location = await getLocationFromIP(ip);
 
     if (!user) {
       const lastUser = await User.findOne().sort({ id: -1 });
@@ -199,7 +201,6 @@ exports.googleSignIn = async (req, res) => {
         latitude: null,
         longitude: null,
         locationString: null,
-        google:true,
       },
     });
 
