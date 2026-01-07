@@ -187,6 +187,21 @@ exports.googleSignIn = async (req, res) => {
         console.error("❌ Welcome notification error:", notificationError);
       }
     }
+    await LoginLog.create({
+      userId: user.id,
+      email: user.email,
+      ip: ip,
+      userAgent: req.headers['user-agent'] || 'unknown',
+      location: location || {
+        country: null,
+        city: null,
+        region: null,
+        latitude: null,
+        longitude: null,
+        locationString: null,
+        google:true,
+      },
+    });
 
     const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
