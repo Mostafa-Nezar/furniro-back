@@ -6,6 +6,7 @@ const loginHistorySchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   ip: String,
   userAgent: String,
+  google: { type: Boolean, default: false },
   location: {
     country: String,
     city: String,

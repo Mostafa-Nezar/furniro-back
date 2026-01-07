@@ -113,6 +113,7 @@ exports.signin = async (req, res) => {
       email: user.email,
       ip: ip,
       userAgent: req.headers['user-agent'] || 'unknown',
+      google: false,
       location: location || {
         country: null,
         city: null,
@@ -194,6 +195,7 @@ exports.googleSignIn = async (req, res) => {
       email: user.email,
       ip: ip,
       userAgent: req.headers['user-agent'] || 'unknown',
+      google: true,
       location: location || {
         country: null,
         city: null,
