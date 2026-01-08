@@ -416,7 +416,7 @@ exports.editUser = async (req, res) => {
   }
 };
 
-exports.checkToken = (req, res) => {
+exports.checkToken = async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ msg: "No token provided" });
 
@@ -425,9 +425,23 @@ exports.checkToken = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.user.id;
+    const user = await User.findOne({ id: userId }).select("-password"); 
+
     res.json({
       msg: "Token is valid",
-      userId: decoded.user.id
+      userId: decoded.user.id,
+      user: { 
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        cart: user.cart || [],
+        isSubscribed: user.isSubscribed || false,
+        isGoogleUser: user.isGoogleUser || false,
+        phoneNumber: user.phoneNumber || null,
+        location: user.location || ""
+      }
     });
   } catch (err) {
     res.status(401).json({ msg: "Token invalid or expired" });
