@@ -431,17 +431,7 @@ exports.checkToken = async (req, res) => {
     res.json({
       msg: "Token is valid",
       userId: decoded.user.id,
-      user: { 
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        cart: user.cart || [],
-        isSubscribed: user.isSubscribed || false,
-        isGoogleUser: user.isGoogleUser || false,
-        phoneNumber: user.phoneNumber || null,
-        location: user.location || ""
-      }
+      user
     });
   } catch (err) {
     res.status(401).json({ msg: "Token invalid or expired" });
