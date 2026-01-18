@@ -72,16 +72,18 @@ exports.getTopRatingsWithUsers = async (req, res) => {
 
 exports.addRatingtest = async (req, res) => {
   try {
+    const authenticatedUserId = req.user.id;
     const { userid, productid, rateid, rate, comment } = req.body;
 
     let rating = await Rating.findOne({ rateid });
 
     if (rating) {
+      if (rating.userid !== authenticatedUserId) return res.status(403).json({ msg: "Forbidden: You cannot edit another user's rating." });
       if (rate > 0) rating.rate = rate;
       if (comment) rating.comment = comment;
       await rating.save();
     } else {
-      rating = new Rating({ rateid, userid, productid, rate, comment });
+      rating = new Rating({ rateid, userid:authenticatedUserId, productid, rate, comment });
       await rating.save();
     }
 
