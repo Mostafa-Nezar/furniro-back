@@ -172,10 +172,14 @@ exports.addProduct = async (req, res) => {
 
 
     await newProduct.save();
-    const users = await User.find({}, "id");
-    for (const user of users) {
-      await NotificationService.notifyProductBackInStock(user.id, newProduct.name);
-    }
+    await Promise.all(
+      users.map(user =>
+        NotificationService.notifyProductBackInStock(
+          user.id,
+          newProduct.name
+        )
+      )
+    );
     res.status(201).json({ success: true, product: newProduct });
   } catch (err) {
     console.error(err);
