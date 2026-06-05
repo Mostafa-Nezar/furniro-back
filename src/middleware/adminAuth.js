@@ -3,7 +3,10 @@ const Admin = require('../models/admin');
 
 module.exports = async (req, res, next) => {
     const token = req.header('x-auth-token') ||
-        (req.header('Authorization') && req.header('Authorization').replace('Bearer ', ''));
+        req.header('x-access-token') ||
+        (req.header('authorization') && req.header('authorization').replace('Bearer ', '')) ||
+        req.body?.token ||
+        req.query?.token;
 
     if (!token) {
         return res.status(401).json({ msg: 'middleware: No token, authorization denied' });
