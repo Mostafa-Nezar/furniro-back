@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   _id: { type: Number, required: true, unique: true },
-   id: { type: Number, required: true, unique: true },
+  id: { type: Number, required: true, unique: true },
   key: { type: String },
   name: { type: String, required: true },
   price: { type: Number, required: true },
@@ -33,6 +33,8 @@ const productSchema = new mongoose.Schema({
     covered: String,
     notcovered: String,
   },
+
+  customAttributes: { type: mongoose.Schema.Types.Mixed, default: {} },
 
   image: String,
   image1: String,
