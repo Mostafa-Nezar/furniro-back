@@ -73,17 +73,26 @@ exports.getTopRatingsWithUsers = async (req, res) => {
 exports.addRatingtest = async (req, res) => {
   try {
     const authenticatedUserId = req.user.id;
-    const { userid, productid, rateid, rate, comment } = req.body;
-
+    const { productid, rateid, rate, comment } = req.body;
+    const user = await User.findOne({ id: authenticatedUserId });
+    if (!user) {
+      return res.status(401).json({ msg: "Unauthorized: User not found" });
+    }
+    const product = await Product.findOne({ id: productid });
+    if (!product) {
+      return res.status(404).json({ msg: "Product not found" });
+    }
+    if (!rateid) {
+      return res.status(400).json({ msg: "Rating ID is required" });
+    }
     let rating = await Rating.findOne({ rateid });
-
     if (rating) {
       if (rating.userid !== authenticatedUserId) return res.status(403).json({ msg: "Forbidden: You cannot edit another user's rating." });
       if (rate > 0) rating.rate = rate;
       if (comment) rating.comment = comment;
       await rating.save();
     } else {
-      rating = new Rating({ rateid, userid:authenticatedUserId, productid, rate, comment });
+      rating = new Rating({ rateid, userid: authenticatedUserId, productid, rate, comment });
       await rating.save();
     }
 
