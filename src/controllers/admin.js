@@ -115,7 +115,6 @@ exports.addProduct = async (req, res) => {
     if (!name) {
       return res.status(400).json({ success: false, message: "Name is required" });
     }
-
     if (body.price === undefined || body.price === "") {
       return res.status(400).json({ success: false, message: "Price is required" });
     }
