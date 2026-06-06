@@ -172,6 +172,7 @@ exports.addProduct = async (req, res) => {
 
 
     await newProduct.save();
+    const users = await User.find({}, "id");
     await Promise.all(
       users.map(user =>
         NotificationService.notifyProductBackInStock(
