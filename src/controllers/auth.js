@@ -9,6 +9,7 @@ const { sendWelcomeEmail } = require("../utils/emailService");
 const NotificationService = require("../utils/notificationService");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET;
+const Cart = require("../models/cart");
 const getLocationFromIP = async (ip) => {
   try {
     const res = await axios.get(`https://ipapi.co/${ip}/json/`);
@@ -340,15 +341,13 @@ exports.updateUserCart = async (req, res) => {
       }
     }
 
-    const user = await User.findOneAndUpdate(
-      { id: userId },
-      { $set: { cart } },
-      { new: true, select: "-password" }
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: cart } },
+      { new: true, upsert: true }
     );
 
-    if (!user) return res.status(404).json({ msg: "User not found" });
-
-    return res.json({ msg: "Cart updated successfully", cart: user.cart });
+    return res.json({ msg: "Cart updated successfully", cart: updatedCart.items });
 
   } catch (err) {
     console.error(err);
@@ -426,7 +425,7 @@ exports.checkToken = async (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.user.id;
-    const user = await User.findOne({ id: userId }).select("-password"); 
+    const user = await User.findOne({ id: userId }).select("-password");
 
     res.json({
       msg: "Token is valid",
