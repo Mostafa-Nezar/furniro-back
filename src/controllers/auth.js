@@ -97,7 +97,7 @@ exports.signin = async (req, res) => {
 
   try {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate("cart");
     const location = await getLocationFromIP(ip);
 
     if (!user || user.isGoogleUser || !user.password) {
@@ -134,7 +134,7 @@ exports.signin = async (req, res) => {
         name: user.name,
         email: user.email,
         image: user.image,
-        cart: user.cart || [],
+        cart: user.cart ? user.cart.items : [],
         isSubscribed: user.isSubscribed || false,
         isGoogleUser: user.isGoogleUser || false,
         phoneNumber: user.phoneNumber || null,
@@ -161,7 +161,7 @@ exports.googleSignIn = async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate("cart");
     const location = await getLocationFromIP(ip);
 
     if (!user) {
@@ -217,7 +217,7 @@ exports.googleSignIn = async (req, res) => {
         name: user.name,
         email: user.email,
         image: user.image,
-        cart: user.cart || [],
+        cart: user.cart ? user.cart.items : [],
         isSubscribed: user.isSubscribed || false,
       },
     });
@@ -341,11 +341,19 @@ exports.updateUserCart = async (req, res) => {
       }
     }
 
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
     const updatedCart = await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { items: cart } },
+      { userId: user.id },
+      { $set: { items: cart, userRef: user._id } },
       { new: true, upsert: true }
     );
+
+    if (!user.cart || user.cart.toString() !== updatedCart._id.toString()) {
+      user.cart = updatedCart._id;
+      await user.save();
+    }
 
     return res.json({ msg: "Cart updated successfully", cart: updatedCart.items });
 
@@ -425,7 +433,7 @@ exports.checkToken = async (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.user.id;
-    const user = await User.findOne({ id: userId }).select("-password");
+    const user = await User.findOne({ id: userId }).populate("cart").select("-password");
 
     res.json({
       msg: "Token is valid",
