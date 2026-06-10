@@ -311,7 +311,7 @@ exports.updateUserCart = async (req, res) => {
 
     const userId = Number(req.params.id);
     if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
-    const ids = cart.map((item) => item.id);
+    const ids = cart.map((item) => item.productId);
 
     const products = await Product.find({ id: { $in: ids } });
 
@@ -321,23 +321,38 @@ exports.updateUserCart = async (req, res) => {
     });
 
     for (let item of cart) {
-      const product = productMap[item.id];
-      if (!product) continue;
+      const product = productMap[item.productId];
 
-      if (product.quantity <= 0) {
-        return res.status(400).json({ msg: "Out of stock" });
+      if (!product) {
+        return res.status(404).json({
+          msg: "Product not found"
+        });
       }
 
-      if (item.quantity > product.quantity) {
-        return res
-          .status(400)
-          .json({ msg: `Only ${product.quantity} in stock` });
+      const variant = product.variants.id(item.variantId);
+
+      if (!variant) {
+        return res.status(404).json({
+          msg: "Variant not found"
+        });
+      }
+
+      if (variant.quantity <= 0) {
+        return res.status(400).json({
+          msg: "Out of stock"
+        });
+      }
+
+      if (item.quantity > variant.quantity) {
+        return res.status(400).json({
+          msg: `Only ${variant.quantity} in stock`
+        });
       }
 
       if (item.quantity > 10) {
-        return res
-          .status(400)
-          .json({ msg: "You can only 10 items" });
+        return res.status(400).json({
+          msg: "You can only buy 10 items"
+        });
       }
     }
 

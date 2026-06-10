@@ -7,6 +7,18 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   des: { type: String },
+  category: { type: String },
+  variants: [
+    {
+      color: String,
+      size: String,
+      quantity: Number,
+      price: Number,
+      salePrice: Number,
+      sku: String,
+      image: String
+    }
+  ],
   general: { salespackage: String, model: String, secoundary: String, configuration: String, upholsterymaterial: String, upholsterycolor: String },
 
   myproduct: {

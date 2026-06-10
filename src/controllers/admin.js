@@ -123,6 +123,7 @@ exports.addProduct = async (req, res) => {
     const sale = parseNumberField(body.sale, "sale", 0);
     const averagerate = parseNumberField(body.averagerate, "averagerate", 0);
     const ratecount = parseNumberField(body.ratecount, "ratecount", 0);
+    const variants = parseJSONField(body.variants, "variants", []);
     const quantity = parseNumberField(body.quantity, "quantity", 0);
 
     const newProduct = new Product({
@@ -132,6 +133,7 @@ exports.addProduct = async (req, res) => {
       name,
       price,
       des: body.des?.trim() || "",
+      category: body.category?.trim() || "",
       general: parseJSONField(body.general, "general", {
         salespackage: "",
         model: "",
@@ -166,6 +168,7 @@ exports.addProduct = async (req, res) => {
       sale,
       averagerate,
       ratecount,
+      variants,
       quantity,
       ...uploadedImages
     });
