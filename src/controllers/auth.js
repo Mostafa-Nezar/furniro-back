@@ -75,6 +75,13 @@ exports.signup = async (req, res) => {
     const userObj = newUser.toObject();
     delete userObj.password;
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.status(201).json({
       msg: "User registered successfully",
       token,
@@ -125,6 +132,13 @@ exports.signin = async (req, res) => {
       },
     });
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.json({
       msg: "Login successful",
@@ -208,6 +222,13 @@ exports.googleSignIn = async (req, res) => {
     });
 
     const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.json({
       msg: "Google login successful",
@@ -424,10 +445,7 @@ exports.editUser = async (req, res) => {
 };
 
 exports.checkToken = async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ msg: "No token provided" });
-
-  const token = authHeader.split(" ")[1];
+  const token = req.cookies?.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
   if (!token) return res.status(401).json({ msg: "No token provided" });
 
   try {
@@ -443,4 +461,13 @@ exports.checkToken = async (req, res) => {
   } catch (err) {
     res.status(401).json({ msg: "Token invalid or expired" });
   }
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none"
+  });
+  res.json({ msg: "Logged out successfully" });
 };

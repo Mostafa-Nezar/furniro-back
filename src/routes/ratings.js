@@ -7,5 +7,5 @@ const auth = require("../middleware/auth");
 router.get("/", getAllRatings);
 router.post("/", validate(addRatingSchema), addRating);
 router.post("/test", auth, validate(addRatingSchema), addRatingtest);
-router.get("/top-ratings/:productId", getTopRatingsWithUsers);
+router.get("/top-ratings/:productId", auth, getTopRatingsWithUsers);
 module.exports = router;

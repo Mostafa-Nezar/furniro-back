@@ -24,7 +24,13 @@ app.use(limiter);
 app.use(compression());
 app.use(helmet());
 
-app.use(cors());
+const cookieParser = require("cookie-parser");
+
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use('/uploads', express.static('uploads', {
   setHeaders: (res, path, stat) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');

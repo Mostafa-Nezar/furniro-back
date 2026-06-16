@@ -19,4 +19,5 @@ router.patch("/:id/update-image", auth, checkOwnership, upload.single("avatar"),
 router.patch("/users/:id/location", auth, checkOwnership, validate(updateLocationSchema), authController.updateLocation);
 router.patch("/users/:id/phone", auth, checkOwnership, validate(updatePhoneNumberSchema), authController.updatePhoneNumber);
 router.get("/check-token", authController.checkToken);
+router.post("/logout", authController.logout);
 module.exports = router;

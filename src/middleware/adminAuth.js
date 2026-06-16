@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/admin');
 
 module.exports = async (req, res, next) => {
-    const token = req.header('x-auth-token') ||
+    const token = req.cookies?.adminToken || req.header('x-auth-token') ||
         req.header('x-access-token') ||
         (req.header('authorization') && req.header('authorization').replace('Bearer ', '')) ||
         req.body?.token ||
