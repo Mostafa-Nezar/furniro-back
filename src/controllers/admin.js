@@ -4,14 +4,9 @@ const Order = require("../models/order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
+const Category = require("../models/category");
 const NotificationService = require("../utils/notificationService");
 const JWT_SECRET = process.env.JWT_SECRET;
-const getNextAdminId = async () => {
-  const lastAdmin = await Admin.findOne().sort({ id: -1 });
-  return lastAdmin ? lastAdmin.id + 1 : 1;
-};
-
-
 
 exports.registerAdmin = async (req, res) => {
   try {
@@ -22,8 +17,11 @@ exports.registerAdmin = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const lastAdmin = await Admin.findOne().sort({ id: -1 });
+    const nextId = lastAdmin ? lastAdmin.id + 1 : 1;
+
     const newAdmin = new Admin({
-      id: await getNextAdminId(),
+      id: nextId,
       name,
       email,
       password: hashedPassword,
@@ -34,19 +32,13 @@ exports.registerAdmin = async (req, res) => {
     });
 
     await newAdmin.save();
-
-    // Create token
     const token = jwt.sign(
       { id: newAdmin.id, email: newAdmin.email, role: newAdmin.role },
       JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    res.status(201).json({
-      msg: "Admin registered successfully",
-      admin: newAdmin,
-      token,
-    });
+    res.status(201).json({ msg: "Admin registered successfully", admin: newAdmin, token });
 
   } catch (error) {
     res.status(500).json({ msg: "Server error", error: error.message });
@@ -85,7 +77,6 @@ exports.loginAdmin = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
-
 exports.logoutAdmin = (req, res) => {
   res.clearCookie("adminToken", {
     httpOnly: true,
@@ -267,6 +258,38 @@ exports.deleteOrder = async (req, res) => {
   } catch (error) {
     console.error("❌ Error deleting order:", error.message);
     res.status(500).json({ error: "Server error while deleting order" });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.status(200).json(categories);
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+exports.addCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name?.trim()) {
+      return res.status(400).json({ success: false, message: "Category name is required" });
+    }
+
+    const existing = await Category.findOne({ name });
+    if (existing) {
+      return res.status(400).json({ success: false, message: "Category already exists" });
+    }
+
+    const newCategory = new Category({ name, description });
+    await newCategory.save();
+
+    res.status(201).json({ success: true, category: newCategory });
+  } catch (err) {
+    console.error("Error adding category:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };
 
