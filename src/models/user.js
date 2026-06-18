@@ -6,9 +6,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
-  isSubscribed:{type:Boolean, default:false},
-  phoneNumber: { type: String, default: null }, 
-  location:{ type: String, default: "" },
-  cart: { type: mongoose.Schema.Types.ObjectId, ref: "cart" },
+  isSubscribed: { type: Boolean, default: false },
+  phoneNumber: { type: String, default: null },
+  location: { type: String, default: "" },
+  cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart" },
+  orders: { type: mongoose.Schema.Types.ObjectId, ref: "Order" }
 });
 module.exports = mongoose.model("xser", userSchema);

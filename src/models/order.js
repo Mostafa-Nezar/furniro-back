@@ -12,7 +12,8 @@ const orderSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   status: { type: String, enum: ["pending", "refused", "cancelled", "paid", "shipping", "delivered"], default: "pending" },
   userlocation:{type: String, default:""},
-  deliveryDate: { type: String, default: "" }
-});
+  deliveryDate: { type: String, default: "" },
+  userref: { type: mongoose.Schema.Types.ObjectId, ref: "xser", required: true, index: true }
+}, { timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);
