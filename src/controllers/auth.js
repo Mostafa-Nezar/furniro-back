@@ -327,26 +327,42 @@ exports.updateUserCart = async (req, res) => {
 
     const userId = Number(req.params.id);
     if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
-    const ids = cart.map((item) => item.id);
-    const products = await Product.find({ id: { $in: ids } });
+    const ids = cart.map((item) => item.productId);
+    const products = await Product.find({ _id: { $in: ids } });
     const productMap = {};
     const user = await User.findOne({ id: userId });
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    products.forEach((p) => { productMap[p.id] = p });
+    products.forEach((p) => { productMap[p._id.toString()] = p });
 
     for (let item of cart) {
-      const product = productMap[item.id];
+      const product = productMap[item.productId];
       if (!product) return res.status(400).json({ msg: "Proudct Is Not Exist" });
       if (product.quantity <= 0) return res.status(400).json({ msg: "Out of stock" });
       if (item.quantity > product.quantity) return res.status(400).json({ msg: `Only ${product.quantity} in stock` });
       if (item.quantity > 10) return res.status(400).json({ msg: "You can only 10 items" });
     }
 
+    const [agg] = await Cart.aggregate([
+      { $match: { user_id: user._id } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$_id",
+          totalItems: { $sum: "$items.quantity" },
+          totalPrice: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+        }
+      }
+    ]);
 
     const updatedCart = await Cart.findOneAndUpdate(
-      { userId: user.id },
-      { $set: { items: cart, userRef: user._id } },
+      { user_id: user._id },
+      {
+        $set: {
+          items: cart, userRef: user._id, user_id: user._id, userid: user.id,
+          totalItems: agg.totalItems, totalPrice: agg.totalPrice
+        }
+      },
       { new: true, upsert: true }
     );
 
