@@ -359,8 +359,12 @@ exports.updateUserCart = async (req, res) => {
       { user_id: user._id },
       {
         $set: {
-          items: cart, userRef: user._id, user_id: user._id, userid: user.id,
-          totalItems: agg.totalItems, totalPrice: agg.totalPrice
+          items: cart.map(i => ({...i, price: productMap[i.productId].price})),
+          userRef: user._id,
+          user_id: user._id,
+          userid: user.id,
+          totalItems: agg.totalItems || 0,
+          totalPrice: agg.totalPrice || 0
         }
       },
       { new: true, upsert: true }
