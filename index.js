@@ -10,8 +10,6 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require('compression');
 dotenv.config();
-console.log("x");
-
 
 const app = express();
 app.set('trust proxy', 1)
@@ -27,7 +25,6 @@ app.use(compression());
 app.use(helmet());
 
 const cookieParser = require("cookie-parser");
-const { log } = require("console");
 
 app.use(cors({
   origin: true,
