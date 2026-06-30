@@ -10,6 +10,8 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require('compression');
 dotenv.config();
+console.log("x");
+
 
 const app = express();
 app.set('trust proxy', 1)
@@ -25,6 +27,7 @@ app.use(compression());
 app.use(helmet());
 
 const cookieParser = require("cookie-parser");
+const { log } = require("console");
 
 app.use(cors({
   origin: true,
@@ -84,6 +87,7 @@ app.use("/api/notifications", require("./src/routes/notifications"));
 app.use("/api/orders", require("./src/routes/orders"));
 app.use("/api/braintree", require("./src/routes/braintree"));
 app.use("/api/post", require("./src/routes/post"));
+app.use("/cart", require("./src/routes/cart"));
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))

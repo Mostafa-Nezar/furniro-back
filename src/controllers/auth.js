@@ -261,15 +261,10 @@ exports.updateUserImage = async (req, res) => {
     );
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    await NotificationService.createNotification(
-      userId,
-      "Your profile image has been updated successfully."
-    );
+    await NotificationService.createNotification(userId, "Your profile image has been updated successfully.");
 
     req.app.get("io")?.to(String(userId)).emit("avatarUpdated", {
-      userId,
-      imageUrl: user.image,
-      updatedAt: Date.now(),
+      userId, imageUrl: user.image, updatedAt: Date.now(),
     });
 
     res.json({ msg: "User image updated successfully", imageUrl: user.image, user });
@@ -333,37 +328,21 @@ exports.updateUserCart = async (req, res) => {
     const userId = Number(req.params.id);
     if (isNaN(userId)) return res.status(400).json({ msg: "Invalid user ID" });
     const ids = cart.map((item) => item.id);
-
     const products = await Product.find({ id: { $in: ids } });
-
     const productMap = {};
-    products.forEach((p) => {
-      productMap[p.id] = p;
-    });
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    products.forEach((p) => { productMap[p.id] = p });
 
     for (let item of cart) {
       const product = productMap[item.id];
-      if (!product) continue;
-
-      if (product.quantity <= 0) {
-        return res.status(400).json({ msg: "Out of stock" });
-      }
-
-      if (item.quantity > product.quantity) {
-        return res
-          .status(400)
-          .json({ msg: `Only ${product.quantity} in stock` });
-      }
-
-      if (item.quantity > 10) {
-        return res
-          .status(400)
-          .json({ msg: "You can only 10 items" });
-      }
+      if (!product) return res.status(400).json({ msg: "Proudct Is Not Exist" });
+      if (product.quantity <= 0) return res.status(400).json({ msg: "Out of stock" });
+      if (item.quantity > product.quantity) return res.status(400).json({ msg: `Only ${product.quantity} in stock` });
+      if (item.quantity > 10) return res.status(400).json({ msg: "You can only 10 items" });
     }
 
-    const user = await User.findOne({ id: userId });
-    if (!user) return res.status(404).json({ msg: "User not found" });
 
     const updatedCart = await Cart.findOneAndUpdate(
       { userId: user.id },

@@ -10,7 +10,8 @@ const cartItemSchema = new mongoose.Schema(
 
 const cartSchema = new mongoose.Schema(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "xser", required: true, unique: true },
+        user_id: { type: mongoose.Schema.Types.ObjectId, ref: "xser", required: true, unique: true },
+        userid:{type:Number, required:true , unique: true},
         items: [cartItemSchema],
         totalItems: { type: Number, default: 0 },
         totalPrice: { type: Number, default: 0 },
