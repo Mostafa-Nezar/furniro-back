@@ -14,56 +14,22 @@ exports.getAllRatings = async (req, res) => {
 
 exports.addRating = async (req, res) => {
   try {
-    const userid = req.user.id;
-    const { productid, rate, comment } = req.body;
-
-    const user = await User.findOne({ id: userid });
-    const product = await Product.findOne({ id: productid });
-
-    if (!user) {
-      return res.status(401).json({ msg: "User not found" });
-    }
-
-    if (!product) {
-      return res.status(404).json({ msg: "Product not found" });
-    }
-
-    const rateid = `${userid}-${productid}`;
-
+    const { userid, productid, rateid, rate, comment } = req.body;
     let existingRating = await Rating.findOne({ rateid });
 
     if (!existingRating && comment && (!rate || rate === 0)) {
       return res.status(400).json({ msg: "You must rate before commenting" });
     }
-
     if (existingRating) {
       if (rate && rate > 0) existingRating.rate = rate;
       if (comment) existingRating.comment = comment;
-
       await existingRating.save();
-
-      return res.status(200).json({
-        msg: "Rating updated successfully",
-        rating: existingRating,
-      });
+      return res.status(200).json({ msg: "Rating updated successfully", rating: existingRating });
+    } else {
+      const newRating = new Rating({ rateid, userid, productid, rate, comment });
+      await newRating.save();
+      return res.status(201).json({ msg: "Rating created successfully", rating: newRating });
     }
-
-    const newRating = new Rating({
-      userid,
-      userref: user._id,         // ⭐ NEW (ref من DB)
-      productid,
-      productref: product._id,   // ⭐ NEW (ref من DB)
-      rateid,
-      rate,
-      comment,
-    });
-
-    await newRating.save();
-
-    return res.status(201).json({
-      msg: "Rating created successfully",
-      rating: newRating,
-    });
 
   } catch (err) {
     console.error("❌ Failed to save rating:", err);
