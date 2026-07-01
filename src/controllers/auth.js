@@ -142,7 +142,7 @@ exports.signin = async (req, res) => {
 
     res.json({
       msg: "Login successful",
-      token,
+      
       user: {
         id: user.id,
         name: user.name,
