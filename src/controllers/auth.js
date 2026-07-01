@@ -142,7 +142,7 @@ exports.signin = async (req, res) => {
 
     res.json({
       msg: "Login successful",
-      
+      token,
       user: {
         id: user.id,
         name: user.name,
@@ -375,7 +375,7 @@ exports.updateUserCart = async (req, res) => {
       await user.save();
     }
 
-    return res.json({ msg: "Cart updated successfully", cart: updatedCart.items });
+    return res.json({ msg: "Cart updated successfully", cart: updatedCart });
 
   } catch (err) {
     console.error(err);
