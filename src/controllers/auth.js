@@ -355,6 +355,8 @@ exports.updateUserCart = async (req, res) => {
       }
     ]);
 
+    const result = agg[0] || { totalItems: 0, totalPrice: 0 };
+
     const updatedCart = await Cart.findOneAndUpdate(
       { user_id: user._id },
       {
@@ -363,8 +365,8 @@ exports.updateUserCart = async (req, res) => {
           userRef: user._id,
           user_id: user._id,
           userid: user.id,
-          totalItems: agg?.[0]?.totalItems || 0,
-          totalPrice: agg?.[0]?.totalPrice || 0
+          totalItems: result.totalItems,
+          totalPrice: result.totalPrice
         }
       },
       { new: true, upsert: true }
