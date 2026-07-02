@@ -7,6 +7,6 @@ exports.addRatingSchema = Joi.object({
     productref: Joi.string().optional(),
     rateid: Joi.string().required(),
     rate: Joi.number().integer().min(0).max(5).required(),
-    comment: Joi.string().max(1000).optional()
+    comment: Joi.string().max(1000).allow('', null).optional()
 });
 
