@@ -5,7 +5,14 @@ exports.createOrderSchema = Joi.object({
     products: Joi.array().items(
         Joi.object({
             id: Joi.number().integer().required(),
-            quantity: Joi.number().integer().min(1).required()
+            productId: Joi.string().optional(),
+            name: Joi.string().required(),
+            price: Joi.number().min(0).required(),
+            quantity: Joi.number().integer().min(1).required(),
+            image: Joi.string().optional(),
+            size: Joi.string().optional(),
+            color: Joi.string().optional(),
+            variant: Joi.object().optional()
         })
     ).min(1).required(),
     date: Joi.string().required(),
