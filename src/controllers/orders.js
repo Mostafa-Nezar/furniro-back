@@ -13,6 +13,9 @@ exports.createOrder = async (req, res) => {
   } = req.body;
 
   try {
+    const user = await require("../models/user").findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
     const orderData = {
       userId,
       products,
@@ -24,6 +27,7 @@ exports.createOrder = async (req, res) => {
       paymentdone: "cash on delivery",
       deliveryDate: deliveryDate || new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
       userlocation: userlocation || "",
+      userref: user._id,
     };
 
     const newOrder = new Order(orderData);

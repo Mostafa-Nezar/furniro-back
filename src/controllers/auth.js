@@ -347,6 +347,7 @@ exports.updateUserCart = async (req, res) => {
       const product = productMap[item.productId];
       return {
         ...item,
+        id: product.id,
         price: product.price,
         name: product.name,
         image: product.images && product.images.length > 0 ? product.images[0] : "",
