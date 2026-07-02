@@ -343,25 +343,27 @@ exports.updateUserCart = async (req, res) => {
       if (item.quantity > 10) return res.status(400).json({ msg: "You can only 10 items" });
     }
 
-    const agg = await Cart.aggregate([
-      { $match: { user_id: user._id } },
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$_id",
-          totalItems: { $sum: "$items.quantity" },
-          totalPrice: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
-        }
-      }
-    ]);
+    const enrichedCart = cart.map(item => {
+      const product = productMap[item.productId];
+      return {
+        ...item,
+        price: product.price,
+        name: product.name,
+        image: product.images && product.images.length > 0 ? product.images[0] : "",
+      };
+    });
 
-    const result = agg[0] || { totalItems: 0, totalPrice: 0 };
+    const result = enrichedCart.reduce((acc, item) => {
+      acc.totalItems += item.quantity;
+      acc.totalPrice += item.quantity * item.price;
+      return acc;
+    }, { totalItems: 0, totalPrice: 0 });
 
     const updatedCart = await Cart.findOneAndUpdate(
       { user_id: user._id },
       {
         $set: {
-          items: cart.map(i => ({ ...i, price: productMap[i.productId].price })),
+          items: enrichedCart,
           userRef: user._id,
           user_id: user._id,
           userid: user.id,
