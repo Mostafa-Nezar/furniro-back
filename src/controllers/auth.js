@@ -343,7 +343,7 @@ exports.updateUserCart = async (req, res) => {
       if (item.quantity > 10) return res.status(400).json({ msg: "You can only 10 items" });
     }
 
-    const [agg] = await Cart.aggregate([
+    const agg = await Cart.aggregate([
       { $match: { user_id: user._id } },
       { $unwind: "$items" },
       {
@@ -359,12 +359,12 @@ exports.updateUserCart = async (req, res) => {
       { user_id: user._id },
       {
         $set: {
-          items: cart.map(i => ({...i, price: productMap[i.productId].price})),
+          items: cart.map(i => ({ ...i, price: productMap[i.productId].price })),
           userRef: user._id,
           user_id: user._id,
           userid: user.id,
-          totalItems: agg.totalItems || 0,
-          totalPrice: agg.totalPrice || 0
+          totalItems: agg?.[0]?.totalItems || 0,
+          totalPrice: agg?.[0]?.totalPrice || 0
         }
       },
       { new: true, upsert: true }
