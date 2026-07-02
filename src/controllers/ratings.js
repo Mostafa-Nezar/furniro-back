@@ -22,11 +22,16 @@ exports.addRating = async (req, res) => {
     }
     if (existingRating) {
       if (rate && rate > 0) existingRating.rate = rate;
-      if (comment) existingRating.comment = comment;
+      if (comment !== undefined) existingRating.comment = comment;
       await existingRating.save();
       return res.status(200).json({ msg: "Rating updated successfully", rating: existingRating });
     } else {
-      const newRating = new Rating({ rateid, userid, productid, rate, comment });
+      const user = await User.findOne({ id: userid });
+      const product = await Product.findOne({ id: productid });
+      if (!user || !product) {
+        return res.status(400).json({ msg: "User or Product not found" });
+      }
+      const newRating = new Rating({ rateid, userid, productid, rate, comment, userref: user._id, productref: product._id });
       await newRating.save();
       return res.status(201).json({ msg: "Rating created successfully", rating: newRating });
     }
@@ -89,10 +94,10 @@ exports.addRatingtest = async (req, res) => {
     if (rating) {
       if (rating.userid !== authenticatedUserId) return res.status(403).json({ msg: "Forbidden: You cannot edit another user's rating." });
       if (rate > 0) rating.rate = rate;
-      if (comment) rating.comment = comment;
+      if (comment !== undefined) rating.comment = comment;
       await rating.save();
     } else {
-      rating = new Rating({ rateid, userid: authenticatedUserId, productid, rate, comment });
+      rating = new Rating({ rateid, userid: authenticatedUserId, productid, rate, comment, userref: user._id, productref: product._id });
       await rating.save();
     }
 
