@@ -117,7 +117,7 @@ exports.addRatingtest = async (req, res) => {
       ratecount: allRatings.length,
     });
   } catch (err) {
-    console.error("❌ Failed to save rating:", err);
-    res.status(500).json({ msg: "Failed to save rating" });
+    console.error("❌sorry Failed to save rating:", err);
+    res.status(500).json({ msg: "sorry Failed to save rating" });
   }
 };
