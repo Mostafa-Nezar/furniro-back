@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Category = require("../models/category");
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -23,5 +24,15 @@ exports.updateProduct = async (req, res) => {
     res.json(updatedProduct);
   } catch (err) {
     res.status(500).json({ msg: "Failed to update product" });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.status(200).json(categories);
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };

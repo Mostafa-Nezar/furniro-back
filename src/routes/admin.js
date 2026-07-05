@@ -20,7 +20,6 @@ router.delete("/products/:id/delete", adminAuth, adminController.deleteProduct);
 router.delete("/orders/:id", adminAuth, adminController.deleteOrder);
 router.post("/add-product", adminAuth, validate(productValidationSchema), upload.array("images", 6), adminController.addProduct);
 router.put("/update-product/:id", adminAuth, validate(productValidationSchema), upload.array("images", 6), adminController.adminUpdateProduct);
-router.get("/categories", adminAuth, adminController.getCategories);
 router.post("/add-category", adminAuth, adminController.addCategory);
 
 module.exports = router;

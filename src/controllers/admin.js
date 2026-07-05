@@ -261,16 +261,6 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
-exports.getCategories = async (req, res) => {
-  try {
-    const categories = await Category.find().sort({ name: 1 });
-    res.status(200).json(categories);
-  } catch (err) {
-    console.error("Error fetching categories:", err);
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
-  }
-};
-
 exports.addCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
