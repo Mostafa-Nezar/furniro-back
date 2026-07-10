@@ -3,6 +3,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const NotificationService = require("../utils/notificationService");
 const Order = require('../models/order'); 
 const Product = require("../models/product");
+const User = require("../models/user");
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_2;
 
 async function updateProductQuantities(products) {
@@ -62,8 +63,12 @@ exports.handleStripeWebhook2 = async (req, res) => {
       const productsInOrder = JSON.parse(paymentIntent.metadata.products || '[]');
       const baseDate = new Date(paymentIntent.created * 1000);
       baseDate.setDate(baseDate.getDate() + 3);
+      
+      const userObj = await User.findOne({ id: Number(userId) });
+
       const orderData = {
         userId: userId,
+        userref: userObj ? userObj._id : null,
         products: productsInOrder,
         date: new Date(paymentIntent.created * 1000),
         total: paymentIntent.amount / 100,
@@ -91,7 +96,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
       req.io.emit("productsChanged");
 
       if (userId) {
-        await NotificationService.notifyPaymentSuccess(userId, newOrder._id, "intent", newOrder.total);
+        await NotificationService.notifyPaymentSuccess(Number(userId), newOrder._id, "intent", newOrder.total);
       }
 
     } catch (error) {
