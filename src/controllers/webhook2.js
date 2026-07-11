@@ -4,7 +4,7 @@ const NotificationService = require("../utils/notificationService");
 const Order = require('../models/order'); 
 const Product = require("../models/product");
 const User = require("../models/user");
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_2;
+const endpointSecret = "whsec_QeSehAmdWcFmSQQ81HvXjUJkGXVEvCzr";
 
 async function updateProductQuantities(products) {
   try {
