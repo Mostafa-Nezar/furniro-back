@@ -35,7 +35,7 @@ exports.handleStripeWebhook2 = async (req, res) => {
 
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object;
-    console.log("✅ Received payment_intent.succeeded event.");
+    console.log("Received payment_intent.succeeded event. ✅");
 
     try {
       const userId = paymentIntent.metadata.userId;
