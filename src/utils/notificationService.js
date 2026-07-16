@@ -7,10 +7,11 @@ class NotificationService {
         this.io = socketIO;
     }
 
-    static async createNotification(userId, message) {
+    static async createNotification(userId, title, message) {
         try {
             const notification = new Notification({
                 userId,
+                title,
                 message
             });
             await notification.save();
@@ -18,6 +19,7 @@ class NotificationService {
             if (this.io) {
                 this.io.to(`user_${userId}`).emit('newNotification', {
                     _id: notification._id,
+                    title: notification.title,
                     message: notification.message,
                     read: notification.read,
                     createdAt: notification.createdAt
@@ -31,10 +33,11 @@ class NotificationService {
         }
     }
 
-    static async createBulkNotifications(userIds, message) {
+    static async createBulkNotifications(userIds, title, message) {
         try {
             const notifications = userIds.map(userId => ({
                 userId,
+                title,
                 message
             }));
             const savedNotifications = await Notification.insertMany(notifications);
@@ -58,16 +61,19 @@ class NotificationService {
     }
 
     static async notifyWelcome(userId, userName) {
+        const title = 'Welcome to Furniro';
         const message = `Welcome to Furniro, ${userName}! Thank you for joining us.`;
-        return await this.createNotification(userId, message);
+        return await this.createNotification(userId, title, message);
     }
 
     static async notifyProductBackInStock(userId, productName) {
+        const title = 'Product back in stock';
         const message = `Good news! ${productName} is back in stock. Order now before it runs out again!`;
-        return await this.createNotification(userId, message);
+        return await this.createNotification(userId, title, message);
     }
 
     static async notifyPaymentSuccess(userId, orderId, paymentMethod,  amount) {
+        const title = 'Payment success';
         const message = `Payment of $${amount} for order #${orderId} ${paymentMethod} has been processed successfully.`;
         return await this.createNotification(userId, message);
     }
