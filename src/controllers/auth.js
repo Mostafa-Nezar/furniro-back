@@ -261,7 +261,7 @@ exports.updateUserImage = async (req, res) => {
     );
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    await NotificationService.createNotification(userId, "Your profile image has been updated successfully.");
+    await NotificationService.createNotification(userId, "Profile Image Updated", "Your profile image has been updated successfully.");
 
     req.app.get("io")?.to(String(userId)).emit("avatarUpdated", {
       userId, imageUrl: user.image, updatedAt: Date.now(),
@@ -312,7 +312,7 @@ exports.updatePhoneNumber = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    await NotificationService.createNotification(userId, `Your phone number has been updated to: ${phoneNumber}`);
+    await NotificationService.createNotification(userId, "Phone Number Updated", `Your phone number has been updated to: ${phoneNumber}`);
     res.json({ msg: "Phone number updated successfully", phoneNumber: user.phoneNumber });
   } catch (err) {
     console.error("❌ Update phone number error:", err);
@@ -425,6 +425,7 @@ exports.editUser = async (req, res) => {
     try {
       await NotificationService.createNotification(
         userId,
+        "Profile Updated",
         `Your profile has been updated: ${updatedFields}`
       );
     } catch (notificationError) {
