@@ -12,7 +12,9 @@ exports.getAllPosts = async (req, res) => {
 
 exports.addPost = async (req, res) => {
   try {
-    const { id, image, date, category, title, content } = req.body;
+    const { id, date, category, title, content } = req.body;
+    const image = req.file ? `/uploads/posts/${req.file.filename}` : null;
+
     const newPost = new Post({
       id,
       image,
