@@ -264,7 +264,7 @@ exports.deleteOrder = async (req, res) => {
 exports.addCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const image = req.file ? `/uploads/categories/${req.file.filename}` : null;
+    const uploadedImage = req.file ? req.file.path : null;
 
     if (!name?.trim()) {
       return res.status(400).json({ success: false, message: "Category name is required" });
@@ -275,7 +275,7 @@ exports.addCategory = async (req, res) => {
       return res.status(400).json({ success: false, message: "Category already exists" });
     }
 
-    const newCategory = new Category({ name, description, image });
+    const newCategory = new Category({ name, description, image: uploadedImage });
     await newCategory.save();
 
     res.status(201).json({ success: true, category: newCategory });

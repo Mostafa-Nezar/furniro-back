@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const { getAllPosts, addPost } = require("../controllers/post");
 const validate = require("../middleware/validate");
 const { addPostSchema } = require("../validators/post");
