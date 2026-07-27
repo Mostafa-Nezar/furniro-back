@@ -14,6 +14,17 @@ const loginHistorySchema = new mongoose.Schema({
     latitude: Number,
     longitude: Number,
     locationString: String,
+  },
+  deviceInfo: {
+    brand: String,
+    manufacturer: String,
+    model: String,
+    device: String,
+    product: String,
+    androidVersion: String,
+    sdk: Number,
+    name: String,
+    webBrowserInfo: mongoose.Schema.Types.Mixed,
   }
 });
 

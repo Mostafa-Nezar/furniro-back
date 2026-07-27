@@ -100,7 +100,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.signin = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, deviceInfo } = req.body;
 
   try {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
@@ -130,6 +130,7 @@ exports.signin = async (req, res) => {
         longitude: null,
         locationString: null,
       },
+      deviceInfo: deviceInfo || {},
     });
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
@@ -163,7 +164,7 @@ exports.signin = async (req, res) => {
 };
 
 exports.googleSignIn = async (req, res) => {
-  const { token } = req.body;
+  const { token, deviceInfo } = req.body;
 
   try {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
@@ -219,6 +220,7 @@ exports.googleSignIn = async (req, res) => {
         longitude: null,
         locationString: null,
       },
+      deviceInfo: deviceInfo || {},
     });
 
     const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
