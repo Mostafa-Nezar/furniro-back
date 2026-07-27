@@ -115,6 +115,7 @@ exports.signin = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
+    console.log(">>> DEVICE INFO FROM FLUTTER:", deviceInfo);
     try {
       await LoginLog.create({
         userId: user.id,
