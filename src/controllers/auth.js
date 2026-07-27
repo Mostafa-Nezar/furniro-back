@@ -115,23 +115,26 @@ exports.signin = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
-
-    await LoginLog.create({
-      userId: user.id,
-      email: user.email,
-      ip: ip,
-      userAgent: req.headers['user-agent'] || 'unknown',
-      google: false,
-      location: location || {
-        country: null,
-        city: null,
-        region: null,
-        latitude: null,
-        longitude: null,
-        locationString: null,
-      },
-      deviceInfo: deviceInfo || {},
-    });
+    try {
+      await LoginLog.create({
+        userId: user.id,
+        email: user.email,
+        ip: ip,
+        userAgent: req.headers['user-agent'] || 'unknown',
+        google: false,
+        location: location || {
+          country: null,
+          city: null,
+          region: null,
+          latitude: null,
+          longitude: null,
+          locationString: null,
+        },
+        deviceInfo: deviceInfo || {},
+      });
+    } catch (logErr) {
+      console.error('Failed to save login log:', logErr.message);
+    }
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.cookie("token", token, {
