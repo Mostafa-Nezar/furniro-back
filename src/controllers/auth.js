@@ -101,6 +101,7 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   const { email, password, deviceInfo } = req.body;
+  console.log(req.body.deviceInfo);
 
   try {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
