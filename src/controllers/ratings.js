@@ -77,9 +77,9 @@ exports.getTopRatingsWithUsers = async (req, res) => {
 
 exports.addRatingtest = async (req, res) => {
   try {
+    const { productid, rate, comment } = req.body;
     const authenticatedUserId = req.user.id;
     const rateid = `${authenticatedUserId}-${productid}`;
-    const { productid, rate, comment } = req.body;
     const user = await User.findOne({ id: authenticatedUserId });
     if (!user) {
       return res.status(401).json({ msg: "Unauthorized: User not found" });
