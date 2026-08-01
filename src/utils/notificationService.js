@@ -2,7 +2,7 @@ const Notification = require('../models/notification');
 
 class NotificationService {
     static io = null;
-    
+
     static setSocketIO(socketIO) {
         this.io = socketIO;
     }
@@ -15,7 +15,7 @@ class NotificationService {
                 message
             });
             await notification.save();
-            
+
             if (this.io) {
                 this.io.to(`user_${userId}`).emit('newNotification', {
                     _id: notification._id,
@@ -25,7 +25,7 @@ class NotificationService {
                     createdAt: notification.createdAt
                 });
             }
-            
+
             return notification;
         } catch (error) {
             console.error('Error creating notification:', error);
@@ -41,7 +41,7 @@ class NotificationService {
                 message
             }));
             const savedNotifications = await Notification.insertMany(notifications);
-            
+
             if (this.io) {
                 savedNotifications.forEach(notification => {
                     this.io.to(`user_${notification.userId}`).emit('newNotification', {
@@ -52,7 +52,7 @@ class NotificationService {
                     });
                 });
             }
-            
+
             return savedNotifications;
         } catch (error) {
             console.error('Error creating bulk notifications:', error);
@@ -72,15 +72,16 @@ class NotificationService {
         return await this.createNotification(userId, title, message);
     }
 
-    static async notifyPaymentSuccess(userId, orderId, paymentMethod,  amount) {
+    static async notifyPaymentSuccess(userId, orderId, paymentMethod, amount) {
         const title = 'Payment success';
         const message = `Payment of $${amount} for order #${orderId} ${paymentMethod} has been processed successfully.`;
-        return await this.createNotification(userId, message);
+        return await this.createNotification(userId, title, message);
     }
 
     static async notifyShipping(userId, orderId, trackingNumber) {
+        const title = 'Order shipped';
         const message = `Your order #${orderId} has been shipped! Tracking number: ${trackingNumber}`;
-        return await this.createNotification(userId, message);
+        return await this.createNotification(userId, title, message);
     }
 
 }
