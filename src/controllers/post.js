@@ -12,13 +12,13 @@ exports.getAllPosts = async (req, res) => {
 
 exports.addPost = async (req, res) => {
   try {
-    const { id, date, category, title, content } = req.body;
+    const { id, category, title, content } = req.body;
     const uploadedImage = req.file ? req.file.path : null;
 
     const newPost = new Post({
       id,
       image: uploadedImage,
-      date: date ? new Date(date) : new Date(),
+      date: Date.now(),
       category,
       title,
       content,
