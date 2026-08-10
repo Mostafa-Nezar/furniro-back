@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, default: null },
   location: { type: String, default: "" },
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart" },
-  orders: { type: mongoose.Schema.Types.ObjectId, ref: "Order" }
+  orders: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+  fcmToken: { type: String, default: null }
 });
 module.exports = mongoose.model("xser", userSchema);

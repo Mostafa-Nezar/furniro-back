@@ -111,8 +111,7 @@ exports.addProduct = async (req, res) => {
     await newProduct.save();
     res.status(201).json({ success: true, product: newProduct });
     setImmediate(async () => {
-      const users = await User.find({}, "id").lean();
-      await Promise.allSettled(users.map(user => NotificationService.notifyProductBackInStock(user.id, newProduct.name)));
+      await NotificationService.notifyProductBackInStock(newProduct.name);
     });
   } catch (err) {
     console.error("Error adding product:", err);
