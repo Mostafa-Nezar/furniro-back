@@ -1,6 +1,7 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
 const http = require("http");
@@ -9,7 +10,6 @@ const NotificationService = require("./src/utils/notificationService");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require('compression');
-dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1)

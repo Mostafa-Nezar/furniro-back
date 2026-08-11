@@ -1,10 +1,11 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
-const path = require('path');
+// const path = require('path');
 
 // Initialize Firebase Admin SDK
 try {
-  const serviceAccount = require(path.join(__dirname, '../../furniro-flutter-27576-firebase-adminsdk-fbsvc-a161fc431f.json'));
+  // const serviceAccount = require(path.join(__dirname, '../../furniro-flutter-27576-firebase-adminsdk-fbsvc-a161fc431f.json'));
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   initializeApp({
     credential: cert(serviceAccount)
   });
