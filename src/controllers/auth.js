@@ -294,7 +294,7 @@ exports.updateLocation = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    await NotificationService.createNotification(userId, `Your location has been updated to: ${location}`);
+    await NotificationService.createNotification(userId, "Location", `Your location has been updated to: ${location}`);
     res.json({ msg: "Location updated successfully", location: user.location });
   } catch (err) {
     console.error("❌ Update location error:", err);
