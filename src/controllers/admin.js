@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
 const Category = require("../models/category");
+const LoginLog = require("../models/loginhistory");
 const NotificationService = require("../utils/notificationService");
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -64,7 +65,7 @@ exports.loginAdmin = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
-      maxAge: 30* 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     res.json({
@@ -184,6 +185,22 @@ exports.getUsers = async (req, res) => {
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ message: "Error fetching users", error: err.message });
+  }
+};
+
+exports.getLoginLogs = async (req, res) => {
+  try {
+    const { userId, limit = 100 } = req.query;
+    const filter = userId ? { userId: Number(userId) } : {};
+    const logs = await LoginLog.find(filter)
+      .sort({ date: -1 })
+      .limit(Number(limit))
+      .lean();
+
+    res.status(200).json(logs);
+  } catch (err) {
+    console.error("❌ Error fetching login logs:", err.message);
+    res.status(500).json({ message: "Error fetching login logs", error: err.message });
   }
 };
 

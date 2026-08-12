@@ -13,6 +13,7 @@ router.post("/adminlogin", adminController.loginAdmin);
 router.post("/adminlogout", adminController.logoutAdmin);
 
 router.get("/users", adminAuth, adminController.getUsers);
+router.get("/login-logs", adminAuth, adminController.getLoginLogs);
 router.get("/orders", adminAuth, adminController.getOrders);
 router.patch("/orders/:id/status", adminAuth, adminController.updateOrderStatus);
 router.delete("/users/:id", adminAuth, adminController.deleteUser);
