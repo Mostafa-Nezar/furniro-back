@@ -218,7 +218,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
+    const orders = await Order.find().populate("userref");
     res.status(200).json(orders);
   } catch (err) {
     console.error("❌ Error fetching orders:", err.message);
