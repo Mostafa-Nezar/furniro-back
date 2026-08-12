@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
+  notifications: { type: mongoose.Schema.Types.ObjectId, ref: "Notification2" },
   isSubscribed: { type: Boolean, default: false },
   phoneNumber: { type: String, default: null },
   location: { type: String, default: "" },
