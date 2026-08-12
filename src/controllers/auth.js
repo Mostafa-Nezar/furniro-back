@@ -121,7 +121,6 @@ exports.signin = async (req, res) => {
         email: user.email,
         ip: ip,
         userAgent: req.headers['user-agent'] || 'unknown',
-        google: false,
         location: location || {
           country: null,
           city: null,
@@ -214,7 +213,6 @@ exports.googleSignIn = async (req, res) => {
       email: user.email,
       ip: ip,
       userAgent: req.headers['user-agent'] || 'unknown',
-      google: true,
       location: location || {
         country: null,
         city: null,
@@ -224,6 +222,7 @@ exports.googleSignIn = async (req, res) => {
         locationString: null,
       },
       deviceInfo: deviceInfo || {},
+      type:"google login"
     });
 
     const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
@@ -468,6 +467,23 @@ exports.checkToken = async (req, res) => {
       userId: decoded.user.id,
       user
     });
+    await LoginLog.create({
+      userId: user.id,
+      email: user.email,
+      ip: ip,
+      userAgent: req.headers['user-agent'] || 'unknown',
+      location: location || {
+        country: null,
+        city: null,
+        region: null,
+        latitude: null,
+        longitude: null,
+        locationString: null,
+      },
+      deviceInfo: deviceInfo || {},
+      type:"check auth"
+
+    });
   } catch (err) {
     res.status(401).json({ msg: "Token invalid or expired" });
   }
@@ -479,5 +495,12 @@ exports.logout = (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "none"
   });
+  await LoginLog.create({
+    userId: user.id,
+    email: user.email,
+    type:"log out"
+
+  });
+
   res.json({ msg: "Logged out successfully" });
 };

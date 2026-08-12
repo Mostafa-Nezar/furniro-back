@@ -6,7 +6,6 @@ const loginHistorySchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   ip: String,
   userAgent: String,
-  google: { type: Boolean, default: false },
   location: {
     country: String,
     city: String,
@@ -25,7 +24,8 @@ const loginHistorySchema = new mongoose.Schema({
     sdk: Number,
     name: String,
     webBrowserInfo: mongoose.Schema.Types.Mixed,
-  }
+  },
+  type: { type: String, default: "login" }
 });
 
 module.exports = mongoose.model("LoginLog", loginHistorySchema);
