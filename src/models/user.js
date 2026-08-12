@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const userSchema = new mongoose.Schema({
   id: { type: Number, unique: true, required: true, index: true },
   name: { type: String, required: true },
@@ -6,12 +7,32 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
-  notifications: { type: mongoose.Schema.Types.ObjectId, ref: "Notification2" },
   isSubscribed: { type: Boolean, default: false },
   phoneNumber: { type: String, default: null },
   location: { type: String, default: "" },
-  cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart" },
-  orders: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
-  fcmToken: { type: String, default: null }
+  fcmToken: { type: String, default: null },
 });
+
+userSchema.virtual("notifications", {
+  ref: "Notification2",
+  localField: "id",
+  foreignField: "userId",
+});
+
+userSchema.virtual("cart", {
+  ref: "Cart",
+  localField: "_id",
+  foreignField: "user_id",
+  justOne: true,
+});
+
+userSchema.virtual("orders", {
+  ref: "Order",
+  localField: "_id",
+  foreignField: "userref",
+});
+
+userSchema.set("toJSON", { virtuals: true });
+userSchema.set("toObject", { virtuals: true });
+
 module.exports = mongoose.model("xser", userSchema);
