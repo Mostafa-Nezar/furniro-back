@@ -92,11 +92,6 @@ exports.addRatingtest = async (req, res) => {
       return res.status(400).json({ msg: "Rating ID is required" });
     }
     let rating = await Rating.findOne({ rateid });
-    if (!rating && typeof comment === "string" && comment.trim() !== "") {
-      return res.status(400).json({
-        msg: "You must rate the product before adding a comment.",
-      });
-    }
     if (rating) {
       if (rating.userid !== authenticatedUserId) return res.status(403).json({ msg: "Forbidden: You cannot edit another user's rating." });
       if (rate > 0) rating.rate = rate;
