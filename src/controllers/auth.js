@@ -382,7 +382,7 @@ exports.checkToken = async (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.user.id;
-    const user = await User.findOne({ id: userId }).populate("cart").select("-password");
+    const user = await User.findOne({ id: userId }).populate("notifications").populate("cart").populate("orders").select("-password");
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
     const location = await getLocationFromIP(ip);
 
