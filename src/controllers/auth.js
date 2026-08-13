@@ -402,17 +402,31 @@ exports.checkToken = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none"
-  });
-  await LoginLog.create({
-    userId: user.id,
-    email: user.email,
-    type: "log out"
+  try { 
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1]; 
 
-  });
+    if (token) { 
+      const decoded = jwt.verify(token, JWT_SECRET); 
+      const user = await User.findOne({ id: decoded.user.id }); 
 
-  res.json({ msg: "Logged out successfully" });
+      if (user) { 
+        await LoginLog.create({ 
+          userId: user.id,
+          email: user.email,
+          type: "log out"
+        });
+      }
+    }
+
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none"
+    });
+
+    res.json({ msg: "Logged out successfully" });
+  } catch (err) { 
+    res.clearCookie("token"); 
+    res.json({ msg: "Logged out successfully" }); 
+  }
 };
