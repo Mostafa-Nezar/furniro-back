@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   isGoogleUser: { type: Boolean, default: false },
   image: { type: String, default: null },
   isSubscribed: { type: Boolean, default: false },
-  phoneNumber: { type: String, default: null },
+  phoneNumber: { type: String, default: "" },
   location: { type: String, default: "" },
   fcmToken: { type: String, default: null },
 });
@@ -32,7 +32,19 @@ userSchema.virtual("orders", {
   foreignField: "userref",
 });
 
-userSchema.set("toJSON", { virtuals: true });
-userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", {
+  virtuals: true,
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  },
+});
+userSchema.set("toObject", {
+  virtuals: true,
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  },
+});
 
 module.exports = mongoose.model("xser", userSchema);

@@ -40,40 +40,19 @@ const getLocationFromIP = async (ip) => {
 };
 
 exports.signup = async (req, res) => {
-  const { name, email, password, phoneNumber } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     const exists = await User.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ msg: "Email already exists" });
-    }
+    if (exists) return res.status(400).json({ msg: "Email already exists" });
 
     const hashedPass = await bcrypt.hash(password, 10);
     const lastUser = await User.findOne().sort({ id: -1 });
     const nextId = lastUser ? lastUser.id + 1 : 1;
-
-    const newUser = new User({
-      id: nextId,
-      name,
-      email,
-      password: hashedPass,
-      isSubscribed: false,
-      phoneNumber: phoneNumber || null,
-      location: ""
-    });
-
-    await newUser.save();
-
-    // Send welcome notification (non-blocking)
-    try {
-      await NotificationService.notifyWelcome(newUser.id, newUser.name);
-    } catch (notificationError) {
-      console.error("❌ Welcome notification error:", notificationError);
-    }
-
-    const token = jwt.sign({ user: { id: newUser.id } }, JWT_SECRET, { expiresIn: "7d" });
-    const userObj = newUser.toObject();
-    delete userObj.password;
+    const user = new User({ id: nextId, name, email, password: hashedPass });
+    await user.save();
+    await NotificationService.notifyWelcome(user.id, user.name);
+    const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -82,19 +61,9 @@ exports.signup = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    res.status(201).json({
-      msg: "User registered successfully",
-      token,
-      user: userObj
-    });
+    res.status(201).json({ msg: "User registered successfully", token, user });
   } catch (err) {
     console.error("❌ Signup error:", err);
-
-    // Handle MongoDB duplicate key error
-    if (err.code === 11000 || err.keyPattern?.email) {
-      return res.status(400).json({ msg: "Email already exists" });
-    }
-
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
@@ -104,7 +73,7 @@ exports.signin = async (req, res) => {
 
   try {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
-    const user = await User.findOne({ email }).populate("cart");
+    const user = await User.findOne({ email }).populate("notifications").populate("cart").populate("orders");
     const location = await getLocationFromIP(ip);
 
     if (!user || user.isGoogleUser || !user.password) {
@@ -119,21 +88,15 @@ exports.signin = async (req, res) => {
       await LoginLog.create({
         userId: user.id,
         email: user.email,
-        ip: ip,
+        ip,
         userAgent: req.headers['user-agent'] || 'unknown',
-        location: location || {
-          country: null,
-          city: null,
-          region: null,
-          latitude: null,
-          longitude: null,
-          locationString: null,
-        },
+        location: location ,
         deviceInfo: deviceInfo || {},
       });
-    } catch (logErr) {
-      console.error('Failed to save login log:', logErr.message);
+    } catch (e) {
+      console.error('Failed to save login log:', e.message);
     }
+
     const token = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
 
     res.cookie("token", token, {
@@ -146,17 +109,7 @@ exports.signin = async (req, res) => {
     res.json({
       msg: "Login successful",
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        cart: user.cart ? user.cart.items : [],
-        isSubscribed: user.isSubscribed || false,
-        isGoogleUser: user.isGoogleUser || false,
-        phoneNumber: user.phoneNumber || null,
-        location: user.location || ""
-      },
+      user
     });
 
   } catch (err) {
@@ -178,22 +131,13 @@ exports.googleSignIn = async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
 
-    let user = await User.findOne({ email }).populate("cart");
+    let user = await User.findOne({ email }).populate("notifications").populate("cart").populate("orders");
     const location = await getLocationFromIP(ip);
 
     if (!user) {
       const lastUser = await User.findOne().sort({ id: -1 });
       const nextId = lastUser ? lastUser.id + 1 : 1;
-
-      user = new User({
-        id: nextId,
-        name,
-        email,
-        isGoogleUser: true,
-        image: picture,
-        isSubscribed: false,
-      });
-
+      user = new User({ id: nextId, name, email, isGoogleUser: true, image: picture });
       await user.save();
 
       // try {
@@ -211,18 +155,11 @@ exports.googleSignIn = async (req, res) => {
     await LoginLog.create({
       userId: user.id,
       email: user.email,
-      ip: ip,
+      ip,
       userAgent: req.headers['user-agent'] || 'unknown',
-      location: location || {
-        country: null,
-        city: null,
-        region: null,
-        latitude: null,
-        longitude: null,
-        locationString: null,
-      },
+      location: location || null,
       deviceInfo: deviceInfo || {},
-      type:"google login"
+      type: "google login"
     });
 
     const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
@@ -234,18 +171,7 @@ exports.googleSignIn = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    res.json({
-      msg: "Google login successful",
-      token: jwtToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        cart: user.cart ? user.cart.items : [],
-        isSubscribed: user.isSubscribed || false,
-      },
-    });
+    res.json({ msg: "Google login successful", token: jwtToken, user });
   } catch (err) {
     console.error("❌ Google signin error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
@@ -481,7 +407,7 @@ exports.checkToken = async (req, res) => {
         locationString: null,
       },
       deviceInfo: deviceInfo || {},
-      type:"check auth"
+      type: "check auth"
 
     });
   } catch (err) {
@@ -498,7 +424,7 @@ exports.logout = (req, res) => {
   await LoginLog.create({
     userId: user.id,
     email: user.email,
-    type:"log out"
+    type: "log out"
 
   });
 
