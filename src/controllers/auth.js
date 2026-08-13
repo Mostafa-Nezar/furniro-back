@@ -106,11 +106,7 @@ exports.signin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    res.json({
-      msg: "Login successful",
-      token,
-      user
-    });
+    res.json({ msg: "Login successful", token, user });
 
   } catch (err) {
     console.error("❌ Signin error:", err);
@@ -387,26 +383,16 @@ exports.checkToken = async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.user.id;
     const user = await User.findOne({ id: userId }).populate("cart").select("-password");
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
+    const location = await getLocationFromIP(ip);
 
-    res.json({
-      msg: "Token is valid",
-      userId: decoded.user.id,
-      user
-    });
+    res.json({ msg: "Token is valid", userId: decoded.user.id, user });
     await LoginLog.create({
       userId: user.id,
       email: user.email,
-      ip: ip,
+      ip,
       userAgent: req.headers['user-agent'] || 'unknown',
-      location: location || {
-        country: null,
-        city: null,
-        region: null,
-        latitude: null,
-        longitude: null,
-        locationString: null,
-      },
-      deviceInfo: deviceInfo || {},
+      location: location || null,
       type: "check auth"
 
     });
@@ -415,7 +401,7 @@ exports.checkToken = async (req, res) => {
   }
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
