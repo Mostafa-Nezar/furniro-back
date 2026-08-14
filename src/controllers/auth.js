@@ -385,7 +385,6 @@ exports.checkToken = async (req, res) => {
     const user = await User.findOne({ id: userId }).populate("notifications").populate("cart").populate("orders").select("-password");
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
     const location = await getLocationFromIP(ip);
-    const { deviceInfo } = req.body || {};
 
     res.json({ msg: "Token is valid", userId: decoded.user.id, user });
     await LoginLog.create({
@@ -394,7 +393,6 @@ exports.checkToken = async (req, res) => {
       ip,
       userAgent: req.headers['user-agent'] || 'unknown',
       location: location || null,
-      deviceInfo: deviceInfo || {},
       type: "check auth"
 
     });
