@@ -190,16 +190,12 @@ exports.getUsers = async (req, res) => {
 
 exports.getLoginLogs = async (req, res) => {
   try {
-    const { userId, limit = 100 } = req.query;
-    const filter = userId ? { userId: Number(userId) } : {};
-    const logs = await LoginLog.find(filter)
-      .sort({ date: -1 })
-      .limit(Number(limit))
-      .lean();
-
-    res.status(200).json(logs);
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
+    const [logs, total] = await Promise.all([LoginLog.find().sort({ date: -1 }).skip(skip).limit(limit).lean(), LoginLog.countDocuments()]);
+    res.status(200).json({ logs, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (err) {
-    console.error("❌ Error fetching login logs:", err.message);
     res.status(500).json({ message: "Error fetching login logs", error: err.message });
   }
 };
