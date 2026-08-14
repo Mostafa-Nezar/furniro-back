@@ -90,7 +90,7 @@ exports.signin = async (req, res) => {
         email: user.email,
         ip,
         userAgent: req.headers['user-agent'] || 'unknown',
-        location: location ,
+        location: location,
         deviceInfo: deviceInfo || {},
       });
     } catch (e) {
@@ -385,6 +385,7 @@ exports.checkToken = async (req, res) => {
     const user = await User.findOne({ id: userId }).populate("notifications").populate("cart").populate("orders").select("-password");
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
     const location = await getLocationFromIP(ip);
+    const { deviceInfo } = req.body || {};
 
     res.json({ msg: "Token is valid", userId: decoded.user.id, user });
     await LoginLog.create({
@@ -393,6 +394,7 @@ exports.checkToken = async (req, res) => {
       ip,
       userAgent: req.headers['user-agent'] || 'unknown',
       location: location || null,
+      deviceInfo: deviceInfo || {},
       type: "check auth"
 
     });
@@ -402,15 +404,15 @@ exports.checkToken = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  try { 
-    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1]; 
+  try {
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
-    if (token) { 
-      const decoded = jwt.verify(token, JWT_SECRET); 
-      const user = await User.findOne({ id: decoded.user.id }); 
+    if (token) {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const user = await User.findOne({ id: decoded.user.id });
 
-      if (user) { 
-        await LoginLog.create({ 
+      if (user) {
+        await LoginLog.create({
           userId: user.id,
           email: user.email,
           type: "log out"
@@ -425,8 +427,8 @@ exports.logout = async (req, res) => {
     });
 
     res.json({ msg: "Logged out successfully" });
-  } catch (err) { 
-    res.clearCookie("token"); 
-    res.json({ msg: "Logged out successfully" }); 
+  } catch (err) {
+    res.clearCookie("token");
+    res.json({ msg: "Logged out successfully" });
   }
 };
