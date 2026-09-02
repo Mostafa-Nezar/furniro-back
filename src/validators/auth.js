@@ -11,6 +11,12 @@ exports.googleSignInSchema = Joi.object({
     deviceInfo: Joi.object().unknown(true).optional()
 });
 
+exports.githubSignInSchema = Joi.object({
+    token: Joi.string().optional(),
+    code: Joi.string().optional(),
+    deviceInfo: Joi.object().unknown(true).optional()
+}).or('token', 'code');
+
 exports.updateLocationSchema = Joi.object({
     location: Joi.string().required()
 });
