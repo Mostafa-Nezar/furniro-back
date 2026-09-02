@@ -12,6 +12,7 @@ const checkOwnership = require("../middleware/checkOwnership");
 
 router.post("/signup", validate(signupSchema), authController.signup);
 router.post("/signin", validate(signinSchema), authController.signin);
+router.post("/github", validate(githubSignInSchema), authController.githubSignIn);
 router.post("/google", validate(googleSignInSchema), authController.googleSignIn);
 router.patch("/users/:id/edit", auth, checkOwnership, validate(editUserSchema), authController.editUser);
 router.patch("/cart/:id/", auth, checkOwnership, authController.updateUserCart);

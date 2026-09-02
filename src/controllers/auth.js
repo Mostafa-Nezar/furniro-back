@@ -174,6 +174,97 @@ exports.googleSignIn = async (req, res) => {
   }
 };
 
+exports.githubSignIn = async (req, res) => {
+  const { code, token, deviceInfo } = req.body;
+
+  try {
+    let accessToken = token;
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || req.ip;
+
+    if (code && !accessToken) {
+      const tokenResponse = await axios.post(
+        "https://github.com/login/oauth/access_token",
+        {
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          code,
+        },
+        { headers: { Accept: "application/json" } }
+      );
+      accessToken = tokenResponse.data.access_token;
+    }
+
+    if (!accessToken) {
+      return res.status(401).json({ msg: "Failed to authenticate with GitHub. Code or token is required." });
+    }
+
+    const userResponse = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const githubUser = userResponse.data;
+    let email = githubUser.email;
+
+    if (!email) {
+      const emailResponse = await axios.get("https://api.github.com/user/emails", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const primaryEmail = emailResponse.data.find(e => e.primary && e.verified);
+      if (primaryEmail) email = primaryEmail.email;
+    }
+
+    if (!email) {
+      return res.status(400).json({ msg: "Email not found in GitHub account" });
+    }
+
+    let user = await User.findOne({ email }).populate("notifications").populate("cart").populate("orders");
+    const location = await getLocationFromIP(ip);
+
+    if (!user) {
+      const lastUser = await User.findOne().sort({ id: -1 });
+      const nextId = lastUser ? lastUser.id + 1 : 1;
+      user = new User({ 
+        id: nextId, 
+        name: githubUser.name || githubUser.login, 
+        email, 
+        isGithubUser: true, 
+        image: githubUser.avatar_url 
+      });
+      await user.save();
+
+      try {
+        await NotificationService.notifyWelcome(user.id, user.name);
+      } catch (notificationError) {
+        console.error("❌ Welcome notification error:", notificationError);
+      }
+    }
+
+    await LoginLog.create({
+      userId: user.id,
+      email: user.email,
+      ip,
+      userAgent: req.headers['user-agent'] || 'unknown',
+      location: location || null,
+      deviceInfo: deviceInfo || {},
+      type: "github login"
+    });
+
+    const jwtToken = jwt.sign({ user: { id: user.id } }, JWT_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.json({ msg: "GitHub login successful", token: jwtToken, user });
+  } catch (err) {
+    console.error("❌ GitHub signin error:", err.response?.data || err.message);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
 exports.updateUserImage = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ msg: "No image file uploaded" });
