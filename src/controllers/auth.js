@@ -528,7 +528,7 @@ exports.updateFcmToken = async(req, res) => {
 
     if (!fcmToken) return res.status(400).json({ message: "FCM token is required" });
 
-    await User.findByIdAndUpdate(req.user.id, { $addToSet: { fcmTokens: fcmToken } });
+    await User.findOneAndUpdate({id: req.user.id}, { $addToSet: { fcmTokens: fcmToken } });
 
     return res.status(200).json({ message: "FCM token updated successfully" });
   } catch (error) {
