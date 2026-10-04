@@ -5,7 +5,7 @@ const upload = multer({ storage });
 const router = express.Router();
 const authController = require("../controllers/auth");
 const { signupSchema, editUserSchema } = require("../validators/user");
-const { signinSchema, googleSignInSchema, githubSignInSchema, updateLocationSchema, updatePhoneNumberSchema } = require("../validators/auth");
+const { signinSchema, googleSignInSchema, githubSignInSchema, updateLocationSchema, updatePhoneNumberSchema, updateFcmTokenSchema } = require("../validators/auth");
 const validate = require("../middleware/validate");
 const auth = require("../middleware/auth");
 const checkOwnership = require("../middleware/checkOwnership");
@@ -21,4 +21,6 @@ router.patch("/users/:id/location", auth, checkOwnership, validate(updateLocatio
 router.patch("/users/:id/phone", auth, checkOwnership, validate(updatePhoneNumberSchema), authController.updatePhoneNumber);
 router.get("/check-token", authController.checkToken);
 router.post("/logout", authController.logout);
+router.post("/logout", authController.logout);
+router.patch("/fcm-token", auth, validate(updateFcmTokenSchema), authController.updateFcmToken);
 module.exports = router;

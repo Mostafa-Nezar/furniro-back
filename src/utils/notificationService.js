@@ -38,17 +38,18 @@ class NotificationService {
     }
 
     static async notifyProductBackInStock(productName) {
-        const users = await User.find();
+        const users = await User.find().select("+fcmToken +fcmTokens").lean();
         const title = `${productName} is back in stock`;
         const message = `Good news! ${productName} is back in stock. Order now before it runs out again!`;
-        const testToken = process.env.FCM_TOKEN;
-        const payload = {
+        const tokens = [ ...new Set(users.flatMap(user => [...(user.fcmTokens || []), ...(user.fcmToken ? [user.fcmToken] : [])]))];
+        const payload = tokens.map(token => ({
+            token,
             notification: { title, body: message },
             android: { priority: 'high', notification: { sound: 'default', channelId: 'high_importance_channel', defaultSound: true } },
             apns: { payload: { aps: { sound: 'default' } } },
-            token: testToken
-        };
-        await getMessaging().send(payload);
+            
+        }));
+         if (tokens.length > 0) await getMessaging().sendEach(payload);
         return await Promise.allSettled(users.map(user => this.createNotification(user.id, title, message)));
     }
 

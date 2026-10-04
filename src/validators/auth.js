@@ -25,3 +25,6 @@ exports.updatePhoneNumberSchema = Joi.object({
     phoneNumber: Joi.string().required()
 });
 
+exports.updateFcmTokenSchema = Joi.object({
+    fcmToken: Joi.string().trim().min(1).max(4096).required()
+});

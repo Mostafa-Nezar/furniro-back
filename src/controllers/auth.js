@@ -223,12 +223,12 @@ exports.githubSignIn = async (req, res) => {
     if (!user) {
       const lastUser = await User.findOne().sort({ id: -1 });
       const nextId = lastUser ? lastUser.id + 1 : 1;
-      user = new User({ 
-        id: nextId, 
-        name: githubUser.name || githubUser.login, 
-        email, 
-        isGithubUser: true, 
-        image: githubUser.avatar_url 
+      user = new User({
+        id: nextId,
+        name: githubUser.name || githubUser.login,
+        email,
+        isGithubUser: true,
+        image: githubUser.avatar_url
       });
       await user.save();
 
@@ -521,3 +521,17 @@ exports.logout = async (req, res) => {
     res.json({ msg: "Logged out successfully" });
   }
 };
+
+exports.updateFcmToken = async(req, res) => {
+  try {
+    const { fcmToken } = req.body;
+
+    if (!fcmToken) return res.status(400).json({ message: "FCM token is required" });
+
+    await User.findByIdAndUpdate(req.user.id, { $addToSet: { fcmTokens: fcmToken } });
+
+    return res.status(200).json({ message: "FCM token updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to update FCM token" });
+  }
+}

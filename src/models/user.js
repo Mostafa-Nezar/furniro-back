@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   isSubscribed: { type: Boolean, default: false },
   phoneNumber: { type: String, default: "" },
   location: { type: String, default: "" },
-  fcmToken: { type: String, default: null },
+  fcmToken: { type: String, default: null, select: false },
+  fcmTokens: { type: [String], default: [], select: false },
 });
 
 userSchema.virtual("notifications", {
@@ -36,6 +37,8 @@ userSchema.set("toJSON", {
   virtuals: true,
   transform: (doc, ret) => {
     delete ret.password;
+    delete ret.fcmToken;
+    delete ret.fcmTokens;
     return ret;
   },
 });
@@ -43,6 +46,8 @@ userSchema.set("toObject", {
   virtuals: true,
   transform: (doc, ret) => {
     delete ret.password;
+    delete ret.fcmToken;
+    delete ret.fcmTokens;
     return ret;
   },
 });
